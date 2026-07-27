@@ -30,11 +30,11 @@
 
 \maketitle
 
-\begin{begin}{abstract}
+\begin{abstract}
 Sustainable urban planning and real-time traffic management face a major computational bottleneck: traditional multi-agent microscopic simulators (e.g., SUMO) combined with physical emission models (e.g., HBEFA3) are computationally prohibitive. Simulating high-density traffic over metropolitan networks requires hours of CPU execution and several gigabytes of RAM, precluding interactive scenario exploration and automated optimization loops. To overcome this limitation, this paper introduces a novel Topological Graph-Spectral Surrogate Framework that predicts global urban $\text{CO}_2$ emissions instantaneously ($<6$~ms for known road networks, $<150$~s for full cold-start pipeline integration). Road networks extracted from OpenStreetMap are converted into physically weighted asymmetric impedance adjacency matrices $A \in \mathbb{R}^{n \times n}$. Grounded in non-normal matrix analysis and operator theory, we extract advanced spectral signatures—including the spectral radius $\rho(A)$, Kreiss constant $K(A)$, Schur non-normalness $\Delta(A)$, Hardy norms ($H_2, H_\infty$), multidimensional singular value spectra ($\sigma_1, \dots, \sigma_5$), and Kato perturbation derivatives—that mathematically quantify transient shockwave amplification and network memory. 
 
 Trained on a global multi-city dataset comprising 242 physics-validated SUMO simulations across 44 heterogeneous urban topologies on six continents, our normalized XGBoost surrogate achieves an internal test $R^2 = 82.44\%$ ($\text{RMSE} = 11,127$~kg $\text{CO}_2$, $\text{MAE} = 8,431$~kg) and a 5-fold cross-validation score of $82.44 \pm 1.71\%$. In zero-shot cross-city generalization across 27 unobserved scenarios on 9 unseen cities, the model yields $R^2 = 88.66\%$ ($\text{RMSE} = 5,010$~kg), validating its capacity to extrapolate across unseen geometries. Ablation experiments demonstrate that spectral features provide an incremental $+11.26$ percentage points in $R^2$ over classical topological and volume metrics, while outperforming end-to-end Graph Convolutional Networks (GCNs) by $+25.6$ points in $R^2$ under data-scarce regimes. Finally, computational benchmarks reveal speedup factors exceeding $1.0 \times 10^6 \times$ compared to microscopic physics runs, establishing a rigorous foundation for real-time digital twins and urban climate mitigation policies.
-\end{begin}
+\end{abstract}
 
 \begin{IEEEkeywords}
 Urban traffic $\text{CO}_2$ emissions, Non-normal graph theory, Spectral radius, Kreiss constant, Kato perturbation theory, Machine learning surrogate models, XGBoost, Microscopic simulation, SUMO, Digital twins, Intelligent Transportation Systems.
@@ -58,7 +58,7 @@ The main contributions of this work are summarized as follows:
     \item \textbf{Sub-Millisecond Inference & Operational Digital Twin}: We achieve inference times under $6$~ms for pre-analyzed networks (a speedup exceeding $1.0 \times 10^6 \times$ over SUMO) and $<150$~s for cold-start pipelines on large métropoles. The model is operationalized within an interactive Streamlit digital twin dashboard.
 \end{enumerate}
 
-The remainder of this paper is organized as follows: Section~\II details the graph-spectral mathematical foundations and non-normal matrix theory. Section~\III presents the surrogate machine learning pipeline, feature engineering, target normalization, and GNN comparison. Section~\IV exposes experimental results, ablation studies, zero-shot cross-city validations, and execution benchmarks. Section~\V discusses operational deployment and the academic research roadmap toward publication. Section~\VI concludes the paper.
+The remainder of this paper is organized as follows: Section II details the graph-spectral mathematical foundations and non-normal matrix theory. Section III presents the surrogate machine learning pipeline, feature engineering, target normalization, and GNN comparison. Section IV exposes experimental results, ablation studies, zero-shot cross-city validations, and execution benchmarks. Section V discusses operational deployment and the academic research roadmap toward publication. Section VI concludes the paper.
 
 %-------------------------------------------------------------------------------
 \section{Relational Topology and Mathematical Spectral Foundations}
