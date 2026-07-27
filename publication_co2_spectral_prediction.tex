@@ -53,9 +53,9 @@ To break this computational wall, this paper introduces a novel \emph{Topologica
 The main contributions of this work are summarized as follows:
 \begin{enumerate}
     \item \textbf{Non-Normal Graph-Spectral Formalism}: We formalize road networks as physically weighted asymmetric adjacency matrices $A_{ij} = L_{ij}/(W_{ij} C_{ij})$, incorporating directed single-way streets, link lengths, speed limits, and lane capacities. We leverage non-normal operator theory to extract Kreiss constants $K(A)$, Schur non-normalness $\Delta(A)$, Hardy norms ($H_2, H_\infty$), and Kato spectral perturbation derivatives to model transient congestion shockwaves and temporal memory.
-    \item \textbf{Decoupled Target Normalization & Multi-City Corpus}: We construct an extensive global dataset of 242 physics-validated SUMO simulations covering 44 topologically diverse cities across 6 continents under multi-volume regimes ($1,000$ to $128,000+$ vehicles) and categorical EV electrification rates. We introduce a per-vehicle target normalization ($\text{CO}_2 / N_{\text{veh}}$) that eliminates volume-induced multicollinearity, restoring spectral features as the primary explanatory signals.
-    \item \textbf{Rigorous Benchmark & Ablation Study}: We demonstrate that our XGBoost spectral surrogate achieves an internal test $R^2 = 82.44\%$ and a zero-shot cross-city $R^2 = 88.66\%$ on unseen topologies. Through structured ablation, we prove that spectral features contribute an incremental $+11.26$ percentage points in $R^2$ over volume and classical network metrics. Furthermore, we show that our domain-engineered spectral surrogate vastly outperforms end-to-end Graph Neural Networks (GCNs, $R^2 = 45.92\%$) under tabular data scarcity.
-    \item \textbf{Sub-Millisecond Inference & Operational Digital Twin}: We achieve inference times under $6$~ms for pre-analyzed networks (a speedup exceeding $1.0 \times 10^6 \times$ over SUMO) and $<150$~s for cold-start pipelines on large métropoles. The model is operationalized within an interactive Streamlit digital twin dashboard.
+    \item \textbf{Decoupled Target Normalization \& Multi-City Corpus}: We construct an extensive global dataset of 242 physics-validated SUMO simulations covering 44 topologically diverse cities across 6 continents under multi-volume regimes ($1,000$ to $128,000+$ vehicles) and categorical EV electrification rates. We introduce a per-vehicle target normalization ($\text{CO}_2 / N_{\text{veh}}$) that eliminates volume-induced multicollinearity, restoring spectral features as the primary explanatory signals.
+    \item \textbf{Rigorous Benchmark \& Ablation Study}: We demonstrate that our XGBoost spectral surrogate achieves an internal test $R^2 = 82.44\%$ and a zero-shot cross-city $R^2 = 88.66\%$ on unseen topologies. Through structured ablation, we prove that spectral features contribute an incremental $+11.26$ percentage points in $R^2$ over volume and classical network metrics. Furthermore, we show that our domain-engineered spectral surrogate vastly outperforms end-to-end Graph Neural Networks (GCNs, $R^2 = 45.92\%$) under tabular data scarcity.
+    \item \textbf{Sub-Millisecond Inference \& Operational Digital Twin}: We achieve inference times under $6$~ms for pre-analyzed networks (a speedup exceeding $1.0 \times 10^6 \times$ over SUMO) and $<150$~s for cold-start pipelines on large métropoles. The model is operationalized within an interactive Streamlit digital twin dashboard.
 \end{enumerate}
 
 The remainder of this paper is organized as follows: Section II details the graph-spectral mathematical foundations and non-normal matrix theory. Section III presents the surrogate machine learning pipeline, feature engineering, target normalization, and GNN comparison. Section IV exposes experimental results, ablation studies, zero-shot cross-city validations, and execution benchmarks. Section V discusses operational deployment and the academic research roadmap toward publication. Section VI concludes the paper.
@@ -122,7 +122,7 @@ By casting the road network as a linear time-invariant (LTI) system with transfe
     \|T\|_{H_\infty} = \sup_{|z| > 1} \|(zI - A)^{-1}\|_2 = \sup_{\theta \in [0, 2\pi]} \sigma_{\max}\left( (e^{i\theta}I - A)^{-1} \right).
     \end{equation}
     It characterizes the maximum peak amplification under the worst-case traffic demand scenario.
-    \item \textbf{Hardy $H_2$ Norm (Accumulated Energy & Memory)}:
+    \item \textbf{Hardy $H_2$ Norm (Accumulated Energy \& Memory)}:
     \begin{equation}
     \|T\|_{H_2} = \left( \sum_{k=0}^{\infty} \| A^k \|_F^2 \right)^{1/2}.
     \end{equation}
@@ -146,12 +146,12 @@ B^* = \arg\min_{B \in \mathcal{B}} \left( \lambda_{PF} + \epsilon \frac{w_{PF}^T
 Equation~(\ref{eq:kato1}) reveals that an investment on edge $(i, j)$ yields maximum benefit ($B_{ij} < 0$) when it couples a node $i$ with high source distribution centrality ($w_{PF, i}$) to a node $j$ with high sink receptivity ($v_{PF, j}$). The second-order term (\ref{eq:kato2}) penalizes modifications that displace congestion onto adjacent bottleneck resolvents $S_{PF}$.
 
 %-------------------------------------------------------------------------------
-\section{AI Surrogate Model Architecture & Learning Pipeline}
+\section{AI Surrogate Model Architecture \& Learning Pipeline}
 
 \subsection{Explanatory Feature Families (47 Descriptors)}
 To substitute microscopic simulation, our surrogate regression model utilizes a compact vector $x \in \mathbb{R}^{47}$ of expert features categorized into 8 thematic families:
 \begin{enumerate}
-    \item \textbf{Traffic Demand & Composition (7 features)}: Total vehicles ($N_{\text{veh}}$), simulation duration ($T_{\text{sim}}$), fleet proportions ($\text{ratio}_{\text{car}}, \text{ratio}_{\text{moto}}, \text{ratio}_{\text{truck}}, \text{ratio}_{\text{bus}}$), and relative load ($\text{load}_{\text{rel}} = N_{\text{veh}} / n$).
+    \item \textbf{Traffic Demand \& Composition (7 features)}: Total vehicles ($N_{\text{veh}}$), simulation duration ($T_{\text{sim}}$), fleet proportions ($\text{ratio}_{\text{car}}, \text{ratio}_{\text{moto}}, \text{ratio}_{\text{truck}}, \text{ratio}_{\text{bus}}$), and relative load ($\text{load}_{\text{rel}} = N_{\text{veh}} / n$).
     \item \textbf{Decoupled Electrification Rates (4 features)}: Categorical EV penetration percentages ($\text{pct}_{\text{car\_ev}}, \text{pct}_{\text{moto\_ev}}, \text{pct}_{\text{truck\_ev}}, \text{pct}_{\text{bus\_ev}}$).
     \item \textbf{General Topology (10 features)}: Node count ($n$), edge count ($m$), spatial density, average degree, asymmetry index $\alpha(G)$, source/sink counts and ratios, and edge-to-node ratio.
     \item \textbf{Unweighted Spectral Metrics (5 features)}: Unweighted spectral radius $\rho(A)$, maximum singular value $\sigma_1(A)$, unweighted Kreiss constant $K(A)$, unweighted Hardy $H_2$ norm, and Schur non-normalness $\Delta(A)$.
@@ -207,7 +207,7 @@ GCN + MLP & Raw Graph ($A, X_{\text{degree}}$) & 45.92 \% & 0.8703 \\
 \end{table}
 
 %-------------------------------------------------------------------------------
-\section{Experimental Validation & Comparative Results}
+\section{Experimental Validation \& Comparative Results}
 
 \subsection{Global Multi-City Corpus and Ground Truth Generation}
 Our learning corpus comprises 242 complete SUMO physics simulations across 44 geographically and morphologically diverse cities spanning 6 continents (Europe: Paris, Berlin, Madrid, Versailles, Oxford; North America: Los Angeles, Berkeley, Savannah; South America: Rio de Janeiro, Mendoza, Cuzco; Asia/Middle East: Hanoi, Chiang Mai, Dubai, Muscat; Africa: Nairobi, Casablanca, Cairo, Windhoek; Oceania: Sydney, Hobart, Wellington). Each simulation run represents 1 hour of real traffic under varying traffic volumes ($1,000$ to $128,644$ vehicles) and modal compositions.
@@ -294,7 +294,7 @@ Rank & Feature Name & Category & Importance (\%) \\
 \end{tabular}
 \end{table}
 
-\subsection{Zero-Shot Cross-City Generalization & Barycentric Error Analysis}
+\subsection{Zero-Shot Cross-City Generalization \& Barycentric Error Analysis}
 To test true out-of-sample generalization, we evaluated the model on 9 completely unseen global cities (Nelson, Maseru, Pamplona, Essaouira, Siem Reap, Nara, Galveston, Guanajuato, Colmar) across 18 realistic moderate-to-heavy traffic scenarios. The model was never exposed to these geometries during training or feature extraction.
 
 Across all 18 test scenarios, the model achieved an overall zero-shot coefficient of determination $R^2 = 88.66\%$, with $\text{MAE} = 3.426$~tons $\text{CO}_2$ and $\text{RMSE} = 5.010$~tons $\text{CO}_2$. 
@@ -383,11 +383,11 @@ Even for major métropoles like Munich ($106,744$ raw nodes), the complete cold-
 The surrogate model is operationalized in an interactive web application built with Streamlit. The dashboard integrates:
 \begin{enumerate}
     \item \textbf{Real-Time Prediction Module}: Interactive sliders for traffic load, fleet composition, EV adoption rates, and weather conditions (reducing speed limits by $10\%$ for rain and $20\%$ for snow), updating $\text{CO}_2$ predictions in $<15$~ms.
-    \item \textbf{Spectral & Stability Analysis}: Visualizing the complex eigenvalue spectrum $\sigma(A)$, SVD singular value decay, and computing a normalized Structural Vulnerability Index:
+    \item \textbf{Spectral \& Stability Analysis}: Visualizing the complex eigenvalue spectrum $\sigma(A)$, SVD singular value decay, and computing a normalized Structural Vulnerability Index:
     \begin{equation}
     SV = 0.4 \times \tanh\left( \frac{NN_{\text{rel}}}{2.0} \right) + 0.6 \times \tanh\left( \frac{K(A)}{25.0} \right).
     \end{equation}
-    \item \textbf{Interactive 2D Topology & MFD}: Rendering vector road skeletons colored by volume and Macroscopic Fundamental Diagrams (MFD) to locate network saturation thresholds.
+    \item \textbf{Interactive 2D Topology \& MFD}: Rendering vector road skeletons colored by volume and Macroscopic Fundamental Diagrams (MFD) to locate network saturation thresholds.
 \end{enumerate}
 
 \subsection{Academic Research Roadmap}
