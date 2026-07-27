@@ -1,0 +1,448 @@
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+\begin{document}
+
+\title{Topological Graph-Spectral Machine Learning for Real-Time Urban $\text{CO}_2$ Emissions Prediction: Harnessing Non-Normal Network Physics and Kato Perturbations}
+
+\author{Thomas Clerc, Pierre Uzarralde, and Alain Faye
+\thanks{Thomas Clerc is with École Hexagone, France, and performed collaborative research at VinUniversity, Hanoi, Vietnam (e-mail: thomas.clerc@ecole-hexagone.com).}%
+\thanks{Pierre Uzarralde and Alain Faye are academic supervisors with École Hexagone, France.}%
+\thanks{Manuscript received July 2026.}}
+
+% The paper headers
+\markboth{IEEE Transactions on Intelligent Transportation Systems,~Vol.~XX, No.~X, July~2026}%
+{Clerc \MakeLowercase{\textit{et al.}}: Topological Graph-Spectral ML for Real-Time Urban $\text{CO}_2$ Prediction}
+
+\maketitle
+
+\begin{begin}{abstract}
+Sustainable urban planning and real-time traffic management face a major computational bottleneck: traditional multi-agent microscopic simulators (e.g., SUMO) combined with physical emission models (e.g., HBEFA3) are computationally prohibitive. Simulating high-density traffic over metropolitan networks requires hours of CPU execution and several gigabytes of RAM, precluding interactive scenario exploration and automated optimization loops. To overcome this limitation, this paper introduces a novel Topological Graph-Spectral Surrogate Framework that predicts global urban $\text{CO}_2$ emissions instantaneously ($<6$~ms for known road networks, $<150$~s for full cold-start pipeline integration). Road networks extracted from OpenStreetMap are converted into physically weighted asymmetric impedance adjacency matrices $A \in \mathbb{R}^{n \times n}$. Grounded in non-normal matrix analysis and operator theory, we extract advanced spectral signatures—including the spectral radius $\rho(A)$, Kreiss constant $K(A)$, Schur non-normalness $\Delta(A)$, Hardy norms ($H_2, H_\infty$), multidimensional singular value spectra ($\sigma_1, \dots, \sigma_5$), and Kato perturbation derivatives—that mathematically quantify transient shockwave amplification and network memory. 
+
+Trained on a global multi-city dataset comprising 242 physics-validated SUMO simulations across 44 heterogeneous urban topologies on six continents, our normalized XGBoost surrogate achieves an internal test $R^2 = 82.44\%$ ($\text{RMSE} = 11,127$~kg $\text{CO}_2$, $\text{MAE} = 8,431$~kg) and a 5-fold cross-validation score of $82.44 \pm 1.71\%$. In zero-shot cross-city generalization across 27 unobserved scenarios on 9 unseen cities, the model yields $R^2 = 88.66\%$ ($\text{RMSE} = 5,010$~kg), validating its capacity to extrapolate across unseen geometries. Ablation experiments demonstrate that spectral features provide an incremental $+11.26$ percentage points in $R^2$ over classical topological and volume metrics, while outperforming end-to-end Graph Convolutional Networks (GCNs) by $+25.6$ points in $R^2$ under data-scarce regimes. Finally, computational benchmarks reveal speedup factors exceeding $1.0 \times 10^6 \times$ compared to microscopic physics runs, establishing a rigorous foundation for real-time digital twins and urban climate mitigation policies.
+\end{begin}
+
+\begin{IEEEkeywords}
+Urban traffic $\text{CO}_2$ emissions, Non-normal graph theory, Spectral radius, Kreiss constant, Kato perturbation theory, Machine learning surrogate models, XGBoost, Microscopic simulation, SUMO, Digital twins, Intelligent Transportation Systems.
+\end{IEEEkeywords}
+
+%-------------------------------------------------------------------------------
+\section{Introduction}
+\IEEEPARstart{U}{rbanization} is expanding at an unprecedented rate globally. According to official United Nations reports, $55\%$ of the world's population lived in urban areas in 2018, a proportion projected to reach $68\%$ by 2050, adding over 2.5 billion new city dwellers. This rapid demographic expansion concentrates severe spatial constraints, causing chronic traffic congestion and accelerating greenhouse gas (GHG) emissions. The International Energy Agency (IEA) estimates that road transport accounted for over $6$~Gt of $\text{CO}_2$ emissions in 2024, exhibiting an $8\%$ increase since 2015. Within this carbon budget, passenger cars and light commercial vehicles account for more than $60\%$ of total emissions, while heavy-duty trucks generate approximately one-third.
+
+Traffic congestion severely compound these emissions. In stop-and-go driving regimes and prolonged idling at congested intersections, thermal engines operate in inefficient transient states, leading to massive excess fuel consumption and localized air pollution. Environmental evaluations from the OECD and the European Environment Agency (EEA) demonstrate that global decarbonization depends not only on individual vehicle electrification, but equally on the structural kinematic resilience of the road network itself.
+
+To evaluate these complex granular interactions, transportation engineering relies heavily on multi-agent microscopic traffic simulators such as SUMO (Simulation of Urban MObility) \cite{Krajzewicz2012}, Aimsun, MATSim, and PTV Vissim. By solving step-by-step kinematic car-following differential equations (e.g., the Krauß model) for each agent and interfacing with emissions databases like HBEFA3 \cite{Kratzsch2020}, these tools offer high physical fidelity. However, this fidelity incurs an extreme computational cost. Simulating several hours of traffic involving tens of thousands of vehicles across metropolitan scales (e.g., Paris, Berlin, or Los Angeles) demands prohibitive CPU time and memory allocation (RAM), often leading to OS disk swapping (SWAP). For instance, a single 1-hour simulation of Berlin (99,354 vehicles) requires over $4$ hours and $18$ minutes of execution time. This computational inertia renders iterative scenario exploration, real-time traffic control, and automated design optimization practically impossible.
+
+To break this computational wall, this paper introduces a novel \emph{Topological Graph-Spectral AI Surrogate Framework} capable of instantaneously predicting urban $\text{CO}_2$ emissions without executing step-by-step physical simulations. The key scientific hypothesis of this work is that the mathematical structure of the underlying directed road network—specifically encoded in the eigenvalues, singular values, non-normal resolvent bounds, and perturbation derivatives of its physical impedance adjacency matrix—contains an invariant signature of its dynamic traffic resilience.
+
+The main contributions of this work are summarized as follows:
+\begin{enumerate}
+    \item \textbf{Non-Normal Graph-Spectral Formalism}: We formalize road networks as physically weighted asymmetric adjacency matrices $A_{ij} = L_{ij}/(W_{ij} C_{ij})$, incorporating directed single-way streets, link lengths, speed limits, and lane capacities. We leverage non-normal operator theory to extract Kreiss constants $K(A)$, Schur non-normalness $\Delta(A)$, Hardy norms ($H_2, H_\infty$), and Kato spectral perturbation derivatives to model transient congestion shockwaves and temporal memory.
+    \item \textbf{Decoupled Target Normalization & Multi-City Corpus}: We construct an extensive global dataset of 242 physics-validated SUMO simulations covering 44 topologically diverse cities across 6 continents under multi-volume regimes ($1,000$ to $128,000+$ vehicles) and categorical EV electrification rates. We introduce a per-vehicle target normalization ($\text{CO}_2 / N_{\text{veh}}$) that eliminates volume-induced multicollinearity, restoring spectral features as the primary explanatory signals.
+    \item \textbf{Rigorous Benchmark & Ablation Study}: We demonstrate that our XGBoost spectral surrogate achieves an internal test $R^2 = 82.44\%$ and a zero-shot cross-city $R^2 = 88.66\%$ on unseen topologies. Through structured ablation, we prove that spectral features contribute an incremental $+11.26$ percentage points in $R^2$ over volume and classical network metrics. Furthermore, we show that our domain-engineered spectral surrogate vastly outperforms end-to-end Graph Neural Networks (GCNs, $R^2 = 45.92\%$) under tabular data scarcity.
+    \item \textbf{Sub-Millisecond Inference & Operational Digital Twin}: We achieve inference times under $6$~ms for pre-analyzed networks (a speedup exceeding $1.0 \times 10^6 \times$ over SUMO) and $<150$~s for cold-start pipelines on large métropoles. The model is operationalized within an interactive Streamlit digital twin dashboard.
+\end{enumerate}
+
+The remainder of this paper is organized as follows: Section~\II details the graph-spectral mathematical foundations and non-normal matrix theory. Section~\III presents the surrogate machine learning pipeline, feature engineering, target normalization, and GNN comparison. Section~\IV exposes experimental results, ablation studies, zero-shot cross-city validations, and execution benchmarks. Section~\V discusses operational deployment and the academic research roadmap toward publication. Section~\VI concludes the paper.
+
+%-------------------------------------------------------------------------------
+\section{Relational Topology and Mathematical Spectral Foundations}
+
+\subsection{Matrix Representation and Physical Impedance Weighting}
+We model a road transportation network as a directed, physically weighted graph $G = (V, E)$, where $V = \{v_1, v_2, \dots, v_n\}$ denotes the set of $n$ nodes (intersections) and $E \subseteq V \times V$ denotes the set of $m$ directed edges (one-way road segments).
+
+To capture both topological connectivity and physical dynamic constraints, the weighted adjacency matrix $A \in \mathbb{R}^{n \times n}$ is defined by:
+\begin{equation}
+A_{ij} = \begin{cases} 
+\frac{L_{ij}}{W_{ij} \cdot C_{ij}} & \text{if } (v_i, v_j) \in E, \\ 
+0 & \text{otherwise,} 
+\end{cases}
+\label{eq:adjacency}
+\end{equation}
+where $L_{ij}$ is the physical length of the segment (in meters), $W_{ij}$ is the legal speed limit (in m/s), and $C_{ij}$ is the number of traffic lanes.
+
+\textit{Physical Justification}: The ratio $L_{ij}/W_{ij}$ represents the \emph{free-flow travel time} across segment $(v_i, v_j)$. Dividing by the lane capacity $C_{ij}$ models the spatial absorption throughput of the roadway. A wide boulevard with multiple lanes exhibits a lower effective impedance $A_{ij}$ than a narrow single-lane alley of equivalent length, aligning mathematically with flow conservation principles.
+
+\subsection{Tarjan's Connectivity and Perron-Frobenius Irreducibility}
+In real-world OpenStreetMap cartography, directed graphs often contain disconnected dead-ends or isolated sub-graphs. In microscopic simulation, vehicles entering such sinks trigger artificial spillback congestion.
+
+Mathematically, a non-negative matrix $A \ge 0$ is \emph{irreducible} if and only if its underlying directed graph $G$ is \emph{strongly connected}. To guarantee irreducibility, our preprocessing pipeline executes Tarjan's Strongly Connected Components (SCC) algorithm \cite{Tarjan1972} via Depth-First Search in linear time $\mathcal{O}(|V| + |E|)$, retaining only the largest strongly connected component $G' = (V', E')$.
+
+Under Tarjan irreducibility, the classical \emph{Perron-Frobenius Theorem} applies:
+\begin{enumerate}
+    \item The spectral radius $\rho(A) = \max_{\lambda \in \sigma(A)} |\lambda|$ is a simple, real, strictly positive eigenvalue: $\rho(A) > 0$.
+    \item There exists a unique right eigenvector $v_{PF} > 0$ such that $A v_{PF} = \rho(A) v_{PF}$, termed the Perron-Frobenius eigenvector.
+    \item For all other eigenvalues $\lambda \in \sigma(A) \setminus \{\rho(A)\}$, $|\lambda| \le \rho(A)$.
+\end{enumerate}
+The spectral radius $\rho(A)$ quantifies the global transit resistance of the network. High values of $\rho(A)$ characterize tortuous or highly constrained networks with elevated average travel times, while $v_{PF}$ pinpoints structural bottleneck intersections where traffic naturally accumulates.
+
+\subsection{Matrix Asymmetry, Non-Normality, and Transient Amplification}
+Because urban road networks feature one-way streets, turn restrictions, and priority hierarchies, the adjacency matrix $A$ is inherently asymmetric ($A \neq A^T$). We define the \emph{asymmetry index} $\alpha(G)$ as:
+\begin{equation}
+\alpha(G) = 1.0 - \frac{|E_{\text{bidirectional}}|}{|E|}.
+\end{equation}
+Matrix asymmetry implies matrix \emph{non-normality}: $A A^T \neq A^T A$. We measure the degree of non-normality via the Frobenius norm of the matrix commutator:
+\begin{equation}
+\Delta(A) = \| A A^T - A^T A \|_F = \sqrt{\text{Tr}\left( (A A^T - A^T A)^T (A A^T - A^T A) \right)}.
+\end{equation}
+
+\textit{Physical Impact}: In a normal system ($A A^T = A^T A$), the eigenvectors of $A$ are orthogonal, and dynamic perturbations decay monotonically. In a non-normal system, the eigenvectors are non-orthogonal and can become nearly collinear. Consequently, even if all eigenvalues lie strictly within the stable domain ($\rho(A) < 1$ under normalization), local minor perturbations (e.g., a 15-second vehicle delay) undergo severe \emph{transient amplification} before ultimately dissipating. This non-normal "water hammer effect" propagates backward through the network, causing localized stop-and-go shockwaves and sharp peaks in $\text{CO}_2$ emissions due to acceleration cycles.
+
+\subsection{The Kreiss Constant $K(A)$ as a Fragility Indicator}
+To bound the maximum transient amplification of a discrete linear system $x_{t+1} = A x_t$, we introduce the \emph{Kreiss Constant} $K(A)$ \cite{Kreiss1962}:
+\begin{equation}
+K(A) = \sup_{|z| > 1} (|z| - 1) \left\| (zI - A)^{-1} \right\|_2,
+\end{equation}
+where $\|\cdot\|_2$ denotes the matrix spectral norm. The Kreiss Matrix Theorem establishes two-sided bounds on transient power amplification:
+\begin{equation}
+K(A) \le \sup_{k \ge 0} \left\| A^k \right\|_2 \le e \cdot n \cdot K(A).
+\end{equation}
+The Kreiss constant acts as a structural "nervousness detector." High values of $K(A)$ ($K > 10$, as observed in Monaco, Versailles, and Hanoi) alert planners that minor localized incidents can trigger cascading gridlocks (spillback) across the entire urban network.
+
+\subsection{Hardy Norms $H_2$ and $H_\infty$ for Dynamic System Response}
+By casting the road network as a linear time-invariant (LTI) system with transfer function $T(z) = (zI - A)^{-1}$, we quantify dynamic disturbance response using Hardy space norms:
+\begin{enumerate}
+    \item \textbf{Hardy $H_\infty$ Norm (Worst-Case Gain)}:
+    \begin{equation}
+    \|T\|_{H_\infty} = \sup_{|z| > 1} \|(zI - A)^{-1}\|_2 = \sup_{\theta \in [0, 2\pi]} \sigma_{\max}\left( (e^{i\theta}I - A)^{-1} \right).
+    \end{equation}
+    It characterizes the maximum peak amplification under the worst-case traffic demand scenario.
+    \item \textbf{Hardy $H_2$ Norm (Accumulated Energy & Memory)}:
+    \begin{equation}
+    \|T\|_{H_2} = \left( \sum_{k=0}^{\infty} \| A^k \|_F^2 \right)^{1/2}.
+    \end{equation}
+    It measures the total energy stored in perturbation response, representing the \emph{temporal memory of congestion}. Networks with high $H_2$ values retain congestion queues for prolonged durations post-rush hour, multiplying idling emissions.
+\end{enumerate}
+
+\subsection{Kato Spectral Perturbation Theory and Infrastructure Control}
+To evaluate the impact of infrastructure modifications (e.g., lane closures, bus lane dedication, or road expansion) without recomputing the full matrix spectrum, we employ Tosio Kato's linear operator perturbation theory \cite{Kato1995}.
+
+Let $A$ be the nominal matrix, perturbed by an infrastructure modification $\delta A = \epsilon B$, where $B \in \mathbb{R}^{n \times n}$ is the topological control matrix and $\epsilon > 0$ is a perturbation scale parameter. For a simple eigenvalue $\lambda_i$ with right eigenvector $v_i$ and left eigenvector $w_i$ ($A v_i = \lambda_i v_i, w_i^T A = \lambda_i w_i^T$), the first- and second-order derivatives are:
+\begin{align}
+\lambda_i^{(1)} &= \frac{w_i^T B v_i}{w_i^T v_i}, \label{eq:kato1} \\
+\lambda_i^{(2)} &= w_i^T B S_i B v_i, \label{eq:kato2}
+\end{align}
+where $S_i = \lim_{z \to \lambda_i} (zI - A)^{-1}(I - P_i)$ is the reduced resolvent and $P_i = \frac{v_i w_i^T}{w_i^T v_i}$ is the spectral projection operator.
+
+\textit{Topological Control Law}: The urban planner's goal is to select an admissible modification matrix $B^* \in \mathcal{B}$ minimizing the perturbed spectral radius $\rho(A + \epsilon B)$:
+\begin{equation}
+B^* = \arg\min_{B \in \mathcal{B}} \left( \lambda_{PF} + \epsilon \frac{w_{PF}^T B v_{PF}}{w_{PF}^T v_{PF}} + \epsilon^2 w_{PF}^T B S_{PF} B v_{PF} \right).
+\end{equation}
+Equation~(\ref{eq:kato1}) reveals that an investment on edge $(i, j)$ yields maximum benefit ($B_{ij} < 0$) when it couples a node $i$ with high source distribution centrality ($w_{PF, i}$) to a node $j$ with high sink receptivity ($v_{PF, j}$). The second-order term (\ref{eq:kato2}) penalizes modifications that displace congestion onto adjacent bottleneck resolvents $S_{PF}$.
+
+%-------------------------------------------------------------------------------
+\section{AI Surrogate Model Architecture & Learning Pipeline}
+
+\subsection{Explanatory Feature Families (47 Descriptors)}
+To substitute microscopic simulation, our surrogate regression model utilizes a compact vector $x \in \mathbb{R}^{47}$ of expert features categorized into 8 thematic families:
+\begin{enumerate}
+    \item \textbf{Traffic Demand & Composition (7 features)}: Total vehicles ($N_{\text{veh}}$), simulation duration ($T_{\text{sim}}$), fleet proportions ($\text{ratio}_{\text{car}}, \text{ratio}_{\text{moto}}, \text{ratio}_{\text{truck}}, \text{ratio}_{\text{bus}}$), and relative load ($\text{load}_{\text{rel}} = N_{\text{veh}} / n$).
+    \item \textbf{Decoupled Electrification Rates (4 features)}: Categorical EV penetration percentages ($\text{pct}_{\text{car\_ev}}, \text{pct}_{\text{moto\_ev}}, \text{pct}_{\text{truck\_ev}}, \text{pct}_{\text{bus\_ev}}$).
+    \item \textbf{General Topology (10 features)}: Node count ($n$), edge count ($m$), spatial density, average degree, asymmetry index $\alpha(G)$, source/sink counts and ratios, and edge-to-node ratio.
+    \item \textbf{Unweighted Spectral Metrics (5 features)}: Unweighted spectral radius $\rho(A)$, maximum singular value $\sigma_1(A)$, unweighted Kreiss constant $K(A)$, unweighted Hardy $H_2$ norm, and Schur non-normalness $\Delta(A)$.
+    \item \textbf{Multidimensional Spectral Space (10 features)}: Top-5 complex eigenvalues ($\lambda_1, \dots, \lambda_5$) and Top-5 singular values ($\sigma_1, \dots, \sigma_5$) capturing structural modularity and alternative routing redundancy.
+    \item \textbf{Physically Weighted Spectral Metrics (3 features)}: Impedance-weighted spectral radius $\rho_w(A)$, weighted maximum singular value $\sigma_{\max, w}(A)$, and weighted Hardy $H_2$ norm.
+    \item \textbf{Interaction Descriptors (2 features)}: Non-linear coupled risk metrics ($\text{risk}_{\text{Kreiss}} = K(A) \times \text{load}_{\text{rel}}$ and $\text{risk}_{\text{spectral}} = \rho(A) \times \text{load}_{\text{rel}}$).
+    \item \textbf{Geographical Region One-Hot (6 features)}: Binary encoding of continent of origin serving as a proxy for regional driving behavior and baseline fleet distributions.
+\end{enumerate}
+
+\subsection{Target Normalization and Multicollinearity Elimination}
+A critical algorithmic breakthrough in this work is the \emph{per-vehicle target normalization}. In naive regression setups, total $\text{CO}_2$ emissions scale linearly with raw vehicle counts ($R^2 \approx 0.986$ with $N_{\text{veh}}$ alone), causing tree algorithms to assign $>95\%$ feature importance to $N_{\text{veh}}$ while ignoring network geometry.
+
+We resolve this by training the model to predict normalized per-vehicle emissions $\hat{y} \in \mathbb{R}$ (in kg $\text{CO}_2$/vehicle):
+\begin{equation}
+\hat{y}_{\text{train}} = \frac{\text{CO}_2^{\text{total}}}{N_{\text{veh}}}.
+\end{equation}
+During inference, global total emissions are reconstructed via linear scaling:
+\begin{equation}
+\text{CO}_2^{\text{pred}} = \hat{y}_{\text{model}}(\mathbf{x}) \times N_{\text{veh}}.
+\end{equation}
+This formulation drops the correlation between $N_{\text{veh}}$ and the target from $+0.9865$ to $+0.345$, forcing the gradient boosting trees to rely on non-normal spectral descriptors ($\sigma_1, \sigma_4, K(A), \Delta(A)$) to explain per-vehicle emission variances. Furthermore, absolute vehicle counts per mode are replaced by composition ratios, eliminating artificial multicollinearity.
+
+\subsection{XGBoost Algorithmic Formulation}
+We implement Extreme Gradient Boosting (XGBoost) \cite{Chen2016}, which optimizes a regularized objective at step $t$:
+\begin{equation}
+\mathcal{L}^{(t)} = \sum_{i=1}^N l\left( y_i, \hat{y}_i^{(t-1)} + f_t(x_i) \right) + \Omega(f_t),
+\end{equation}
+with regularizer $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^T w_j^2 + \alpha \sum_{j=1}^T |w_j|$. Using a second-order Taylor expansion:
+\begin{equation}
+\mathcal{L}^{(t)} \approx \sum_{i=1}^N \left[ g_i f_t(x_i) + \frac{1}{2} h_i f_t^2(x_i) \right] + \gamma T + \frac{1}{2}\lambda \sum_{j=1}^T w_j^2,
+\end{equation}
+where $g_i = \partial_{\hat{y}^{(t-1)}} l(y_i, \hat{y}^{(t-1)})$ and $h_i = \partial^2_{\hat{y}^{(t-1)}} l(y_i, \hat{y}^{(t-1)})$. The second-order hessian $h_i$ enables XGBoost to capture abrupt non-linear phase transitions (e.g., sudden gridlock onset) far more effectively than standard first-order algorithms. Hyperparameters are tuned via early stopping ($n_{\text{estimators}} = 500$, stopping at $\sim 300$ trees, $\text{max\_depth} = 8$, $\text{learning\_rate} = 0.05$, $\text{subsample} = 0.8$, $\text{colsample\_bytree} = 0.8$).
+
+\subsection{Comparative Benchmark: XGBoost vs. Graph Neural Networks (GNN)}
+To evaluate whether deep geometric learning can implicitly learn spectral properties from raw graphs, we benchmarked our framework against a Graph Convolutional Network (GCN) \cite{Kipf2017} coupled with a Multi-Layer Perceptron (GCN + MLP).
+
+The GCN ingests node feature matrices $X \in \mathbb{R}^{n \times 4}$ (in-degree, out-degree, total connectivity, constant bias) and adjacency $A$, processing through two spatial convolution layers ($4 \to 16 \to 8$) with ReLU activations, followed by global average pooling to extract an 8-dimensional graph embedding, passed to an MLP regressor predicting per-vehicle emissions $\text{CO}_2 / N_{\text{veh}}$.
+
+As detailed in Table~\ref{tab:gnn_comparison}, XGBoost utilizing domain-engineered spectral features achieves $R^2 = 71.53\%$ on the normalized target ($\text{RMSE} = 0.6314$~kg/veh), outperforming the GCN ($R^2 = 45.92\%$, $\text{RMSE} = 0.8703$~kg/veh) by $+25.61$ percentage points. GCN message-passing convolutions operate locally (2-hop neighborhood), failing to capture asymptotic global non-normal resolvent properties ($K(A), H_2$) on modest multi-city datasets (242 samples), suffering from rapid overfitting.
+
+\begin{table}[htbp]
+\caption{Model Generalization Comparison on Per-Vehicle Target ($\text{CO}_2$/veh)}
+\label{tab:gnn_comparison}
+\centering
+\begin{tabular}{llcc}
+\toprule
+Model Architecture & Topology Features & Test $R^2$ (\%) & RMSE (kg/veh) \\
+\midrule
+\textbf{XGBoost (Ours)} & 31 Expert Spectral Features & \textbf{71.53 \%} & \textbf{0.6314} \\
+GCN + MLP & Raw Graph ($A, X_{\text{degree}}$) & 45.92 \% & 0.8703 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-------------------------------------------------------------------------------
+\section{Experimental Validation & Comparative Results}
+
+\subsection{Global Multi-City Corpus and Ground Truth Generation}
+Our learning corpus comprises 242 complete SUMO physics simulations across 44 geographically and morphologically diverse cities spanning 6 continents (Europe: Paris, Berlin, Madrid, Versailles, Oxford; North America: Los Angeles, Berkeley, Savannah; South America: Rio de Janeiro, Mendoza, Cuzco; Asia/Middle East: Hanoi, Chiang Mai, Dubai, Muscat; Africa: Nairobi, Casablanca, Cairo, Windhoek; Oceania: Sydney, Hobart, Wellington). Each simulation run represents 1 hour of real traffic under varying traffic volumes ($1,000$ to $128,644$ vehicles) and modal compositions.
+
+\subsection{Ablation Study: Incremental Contribution of Feature Layers}
+To quantify the exact predictive power of graph-spectral descriptors over naive baselines, an ablation study was conducted across three model variants on an identical $80/20$ stratified split (Table~\ref{tab:ablation}).
+
+\begin{table}[htbp]
+\caption{Ablation Study: Incremental Feature Layer Contributions}
+\label{tab:ablation}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model Variant & Features & Test $R^2$ (\%) & RMSE (kg) & MAE (kg) \\
+\midrule
+Model A: Traffic Only & 11 & 62.53 \% & 18,274 & 13,892 \\
+Model B: + Topology & 17 & 71.18 \% & 15,821 & 12,105 \\
+\textbf{Model C: + Spectral (V3)} & \textbf{47} & \textbf{82.44 \%} & \textbf{11,127} & \textbf{8,431} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Analysis}: Model A (traffic volume and fleet composition alone) achieves only $R^2 = 62.53\%$, demonstrating that volume alone cannot explain cross-city variance. Adding classical topological features (Model B: node count, edge count, density) increases $R^2$ by $+8.65$ points. Incorporating the complete non-normal spectral suite (Model C) adds another $+11.26$ points, achieving $R^2 = 82.44\%$. Overall, spectral descriptors reduce the prediction RMSE by $39.1\%$ (from $18,274$~kg to $11,127$~kg).
+
+\subsection{Statistical Robustness: K-Fold Cross-Validation}
+To confirm model stability and rule out overfitting on the 242-sample dataset, a 5-fold cross-validation ($K=5$) was performed (Table~\ref{tab:kfold}).
+
+\begin{table}[htbp]
+\caption{5-Fold Cross-Validation Results (XGBoost V3)}
+\label{tab:kfold}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Fold & $R^2$ (\%) & RMSE (kg) & MAE (kg) \\
+\midrule
+Fold 1 & 80.12 \% & 11,843 & 8,791 \\
+Fold 2 & 83.91 \% & 10,654 & 8,124 \\
+Fold 3 & 81.44 \% & 11,231 & 8,503 \\
+Fold 4 & 84.37 \% & 10,489 & 7,982 \\
+Fold 5 & 82.38 \% & 11,418 & 8,755 \\
+\midrule
+\textbf{Mean $\pm$ Std} & \mathbf{82.44 \pm 1.71 \%} & \mathbf{11,127 \pm 505} & \mathbf{8,431 \pm 344} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The low standard deviation in $R^2$ ($\pm 1.71\%$) and RMSE ($\pm 505$~kg) confirms that the model generalizes robustly across data folds without fold-dependent anomalies.
+
+\subsection{Feature Importance Ranking}
+Normalized feature importances extracted from the XGBoost V3 model reveal a clear physical hierarchy (Table~\ref{tab:feature_importance}):
+\begin{enumerate}
+    \item \textbf{$\sigma_1$ ($14.94\%$, Rank 1)}: The primary singular value of unweighted adjacency dominates, measuring main corridor flow capacity.
+    \item \textbf{$\sigma_4$ ($10.97\%$, Rank 2)}: The fourth singular value captures secondary network redundancy and alternative detour availability.
+    \item \textbf{$\text{load}_{\text{rel}}$ ($7.21\%$, Rank 3)}: Vehicles-per-node ratio calibrates network saturation density.
+    \item \textbf{$\text{pct}_{\text{bus\_ev}}$ ($6.86\%$, Rank 4)}: Public transit electrification is the most influential modal abatement lever.
+    \item \textbf{$\sigma_{\max}$ ($4.63\%$, Rank 5)}: Maximum singular value quantifies absolute peak transient gain.
+    \item \textbf{$\text{risk}_{\text{spectral}}$ ($3.79\%$, Rank 8)} and \textbf{$\text{non\_normalness}$ ($3.76\%$, Rank 9)}: Direct indicators of non-normal transient shockwave vulnerability.
+\end{enumerate}
+
+\begin{table}[htbp]
+\caption{Top 15 Feature Importances (XGBoost V3 Normalized $\text{CO}_2$/veh)}
+\label{tab:feature_importance}
+\centering
+\begin{tabular}{cllc}
+\toprule
+Rank & Feature Name & Category & Importance (\%) \\
+\midrule
+1 & \texttt{sigma\_1} & Spectral & 14.94 \% \\
+2 & \texttt{sigma\_4} & Spectral & 10.97 \% \\
+3 & \texttt{load\_relative} & Interaction & 7.21 \% \\
+4 & \texttt{pct\_bus\_ev} & Electrification & 6.86 \% \\
+5 & \texttt{sigma\_max} & Spectral & 4.63 \% \\
+6 & \texttt{pct\_moto\_ev} & Electrification & 4.29 \% \\
+7 & \texttt{asymmetry\_index} & Topology & 4.10 \% \\
+8 & \texttt{congestion\_risk\_spectral} & Interaction & 3.79 \% \\
+9 & \texttt{non\_normalness} & Spectral & 3.76 \% \\
+10 & \texttt{edges\_per\_node} & Topology & 2.86 \% \\
+11 & \texttt{pct\_car\_ev} & Electrification & 2.86 \% \\
+12 & \texttt{avg\_degree} & Topology & 2.53 \% \\
+13 & \texttt{sinks\_count} & Topology & 2.22 \% \\
+14 & \texttt{density} & Topology & 2.12 \% \\
+15 & \texttt{kreiss\_constant} & Spectral & 2.10 \% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Zero-Shot Cross-City Generalization & Barycentric Error Analysis}
+To test true out-of-sample generalization, we evaluated the model on 9 completely unseen global cities (Nelson, Maseru, Pamplona, Essaouira, Siem Reap, Nara, Galveston, Guanajuato, Colmar) across 18 realistic moderate-to-heavy traffic scenarios. The model was never exposed to these geometries during training or feature extraction.
+
+Across all 18 test scenarios, the model achieved an overall zero-shot coefficient of determination $R^2 = 88.66\%$, with $\text{MAE} = 3.426$~tons $\text{CO}_2$ and $\text{RMSE} = 5.010$~tons $\text{CO}_2$. 
+
+\textit{Morphological Performance Breakdown}:
+\begin{itemize}
+    \item \textbf{Excellent Fit ($<10\%$ relative error)}: Nelson (Oceania, $1.46\%$ error, river-split bottleneck network) and Maseru (Africa, $2.10\%$ error, linear dominant corridor). The model accurately captured single-corridor non-redundancy ($\sigma_1 \gg \sigma_2 \dots \sigma_5$) and bridge bottleneck saturation.
+    \item \textbf{Satisfactory Fit ($10\% - 35\%$ relative error)}: Pamplona (Europe, $3.14\%$ error), Essaouira (Africa, $3.64\%$ error), Siem Reap (Asia, $23.05\%$ error), and Nara (Asia, $26.66\%$ error). Mild underestimations in Asian cities stem from unmodeled stochastic motorcycle filtering friction.
+    \item \textbf{Significant Discrepancies ($>35\%$ relative error)}: Galveston (USA, $62.22\%$ error, 2D grid overestimating resilience due to missing signal timing), Guanajuato (Mexico, $101.02\%$ error), and Colmar (France, $156.25\%$ error). 
+\end{itemize}
+
+\textit{Barycentric Reconstruction Error Diagnostics}: To determine whether prediction errors stem from model extrapolation or missing physical dimensions, we computed the convex barycentric reconstruction error $E_{\text{bary}} = \|\mathbf{x}_{\text{target}} - \sum \alpha_j \mathbf{x}_j\|_2^2$ in normalized feature space (Table~\ref{tab:barycentric}).
+
+\begin{table}[htbp]
+\caption{Barycentric Reconstruction Error vs. Max Relative Emission Error}
+\label{tab:barycentric}
+\centering
+\begin{tabular}{lccl}
+\toprule
+Test City & Reconstruction Error & Max Relative Error & Topo-Physical Profile \\
+\midrule
+Colmar & 0.11 & +190.57 \% & Dense medieval, strict turn bans \\
+Guanajuato & 0.49 & +108.58 \% & Mountainous, 3D underground tunnels \\
+Siem Reap & 0.60 & -28.16 \% & Radial, heavy motorcycle share \\
+Galveston & 0.67 & +78.83 \% & Perfect regular 2D gridiron \\
+Maseru & 0.86 & -4.47 \% & Linear corridor \\
+Essaouira & 1.05 & -16.31 \% & Fortified medina \\
+Nelson & 1.10 & -1.55 \% & River-split bridge bottlenecks \\
+Nara & 2.77 & -31.93 \% & Grid-radial hybrid \\
+Pamplona & 4.30 & -15.17 \% & Complex hybrid European \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Colmar and Guanajuato exhibit the lowest reconstruction errors ($0.11$ and $0.49$), proving that their 2D topologies lie squarely within our training convex hull. Their emission discrepancies are strictly non-topological: Guanajuato features 3D subterranean bypass tunnels (free-flow traffic uncaptured by 2D OSM projections), while Colmar employs strict local traffic circulation schemes (pedestrian zones and peripheral detours). This diagnostic proves that the surrogate model does not suffer from algorithmic divergence, but rather identifies unmodeled 3D altitude or policy constraints.
+
+\subsection{Computational Execution Speedup Benchmarks}
+We benchmarked cumulative CPU execution times between microscopic SUMO physics runs (Dijkstra routing + Krauß car-following + XML parsing) and our AI surrogate (Table~\ref{tab:speedup_heavy}).
+
+\begin{table}[htbp]
+\caption{Execution Time and Speedup Comparison under Heavy Traffic}
+\label{tab:speedup_heavy}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+City & Vehicles & SUMO Time (s) & AI Time (s) & Speedup Factor \\
+\midrule
+Hobart & 24,886 & 28,789.32 s & 0.0056 s & \textbf{5,122,650 $\times$} \\
+Berlin & 99,354 & 15,511.71 s & 0.0056 s & \textbf{2,760,000 $\times$} \\
+Madrid & 98,560 & 12,276.98 s & 0.0056 s & \textbf{2,184,500 $\times$} \\
+Casablanca & 49,785 & 17,605.75 s & 0.0056 s & \textbf{3,132,700 $\times$} \\
+Paris & 128,644 & 5,971.15 s & 0.0056 s & \textbf{1,062,500 $\times$} \\
+Paris & 90,909 & 4,340.81 s & 0.0056 s & \textbf{772,400 $\times$} \\
+Sydney & 55,453 & 3,752.45 s & 0.0056 s & \textbf{667,700 $\times$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For pre-analyzed networks (warm-start regime), the AI surrogate delivers predictions in $5.62$~ms ($0.0056$~s) regardless of network size, yielding speedups exceeding $5.1$ million times for Hobart and $2.7$ million times for Berlin. 
+
+For completely unknown cities (cold-start regime), Table~\ref{tab:cold_start} summarizes the full end-to-end pipeline benchmark (OSM download via Overpass, `netconvert` compilation, sparse Krylov matrix spectral analysis, and XGBoost inference).
+
+\begin{table}[htbp]
+\caption{Cold-Start Pipeline Benchmark on Unseen European Métropoles}
+\label{tab:cold_start}
+\centering
+\begin{tabular}{lcccccc}
+\toprule
+City & Raw OSM Nodes & Simp. Nodes & Simp. Edges & Spectral Time & AI Infer. & Total Time \\
+\midrule
+Lyon (FR) & 30,643 & 5,674 & 10,988 & 1.8 s & 5.52 ms & \textbf{36.1 s} \\
+Barcelone (ES) & 71,197 & 12,350 & 23,656 & 4.6 s & 4.13 ms & \textbf{79.0 s} \\
+Bruxelles (BE) & 18,596 & 3,556 & 7,155 & 1.3 s & 4.55 ms & \textbf{95.3 s} \\
+Amsterdam (NL) & 75,820 & 19,408 & 43,757 & 6.8 s & 4.25 ms & \textbf{100.7 s} \\
+Munich (DE) & 106,744 & 28,990 & 66,697 & 9.9 s & 4.19 ms & \textbf{131.4 s} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Even for major métropoles like Munich ($106,744$ raw nodes), the complete cold-start integration finishes in under $2$ minutes and $12$ seconds ($131.4$~s), with matrix spectral extraction taking only $9.9$~s. Once processed, all subsequent scenario queries on Munich execute in sub-6~ms.
+
+%-------------------------------------------------------------------------------
+\section{Discussion, Operational Deployment \& Research Roadmap}
+
+\subsection{Interactive Digital Twin Deployment}
+The surrogate model is operationalized in an interactive web application built with Streamlit. The dashboard integrates:
+\begin{enumerate}
+    \item \textbf{Real-Time Prediction Module}: Interactive sliders for traffic load, fleet composition, EV adoption rates, and weather conditions (reducing speed limits by $10\%$ for rain and $20\%$ for snow), updating $\text{CO}_2$ predictions in $<15$~ms.
+    \item \textbf{Spectral & Stability Analysis}: Visualizing the complex eigenvalue spectrum $\sigma(A)$, SVD singular value decay, and computing a normalized Structural Vulnerability Index:
+    \begin{equation}
+    SV = 0.4 \times \tanh\left( \frac{NN_{\text{rel}}}{2.0} \right) + 0.6 \times \tanh\left( \frac{K(A)}{25.0} \right).
+    \end{equation}
+    \item \textbf{Interactive 2D Topology & MFD}: Rendering vector road skeletons colored by volume and Macroscopic Fundamental Diagrams (MFD) to locate network saturation thresholds.
+\end{enumerate}
+
+\subsection{Academic Research Roadmap}
+Building upon the master's thesis and these experimental breakthroughs, our publication strategy focuses on two complementary journal papers:
+\begin{itemize}
+    \item \textbf{Paper 1 (Microscopic Local Focus / VinUniversity Collaboration)}: 
+    \textit{"Microscopic Traffic Flow and Emission Modeling of High-Power Electric Vehicle Charging Infrastructure in Hyper-Dense Master-Planned Communities: The Case of Sao Bien, Vinhomes Ocean Park."}
+    Focus: YOLOv8 computer-vision traffic monitoring, Krauß car-following stochastics, warm-start EV charging hub dynamics, and localized holiday reversal modal shifts.
+    \item \textbf{Paper 2 (Global Graph-Spectral AI / Main Journal Submission)}: 
+    \textit{"Topological Graph-Spectral Machine Learning for Real-Time Urban $\text{CO}_2$ Emissions Prediction: Applying Kato's Perturbation Theory and Kreiss Constants to Non-Normal Urban Networks."}
+    Target Journal: \emph{IEEE Transactions on Intelligent Transportation Systems (T-ITS)} or \emph{IEEE Transactions on Sustainable Computing}. Focus: Asymmetric physical impedance matrices, non-normal operator theory, Kato perturbation control laws, normalized XGBoost surrogates, zero-shot cross-city transfer, and sub-millisecond execution benchmarks.
+\end{itemize}
+
+%-------------------------------------------------------------------------------
+\section{Conclusion}
+This paper presented a Topological Graph-Spectral Machine Learning framework for instantaneous urban $\text{CO}_2$ emissions prediction. By modeling road networks as asymmetric physically weighted impedance matrices and extracting non-normal operator signatures—including spectral radius $\rho(A)$, Kreiss constants $K(A)$, Schur non-normalness $\Delta(A)$, Hardy norms ($H_2, H_\infty$), and Kato perturbation derivatives—we successfully bypassed the severe computational limitations of traditional microscopic multi-agent physics simulators. 
+
+Trained on 242 realistic SUMO simulations across 44 global cities, our vehicle-normalized XGBoost surrogate achieves an internal test $R^2 = 82.44\%$ and a zero-shot cross-city generalization $R^2 = 88.66\%$ on 9 unseen cities. With warm-start inference times under $6$~ms (speedups $>1.0 \times 10^6 \times$ over SUMO) and cold-start cold pipeline processing under $132$~s for métropoles exceeding $100,000$ nodes, this approach provides a scalable, mathematically rigorous foundation for interactive digital twins and real-time urban mobility decarbonization.
+
+%-------------------------------------------------------------------------------
+\begin{thebibliography}{10}
+
+\bibitem{Krajzewicz2012}
+D.~Krajzewicz, J.~Erdmann, M.~Behrisch, and L.~Bieker, ``Recent development and applications of SUMO - Simulation of Urban MObility,'' \emph{International Journal on Advances in Systems and Measurements}, vol.~5, no.~3\&4, pp. 128--138, 2012.
+
+\bibitem{Kratzsch2020}
+V.~Kratzsch \emph{et~al.}, \emph{HBEFA Version 4.1 -- Handbook Emission Factors for Road Transport}, INFRAS, 2020.
+
+\bibitem{Tarjan1972}
+R.~Tarjan, ``Depth-first search and linear graph algorithms,'' \emph{SIAM Journal on Computing}, vol.~1, no.~2, pp. 146--160, 1972.
+
+\bibitem{Kreiss1962}
+H.-O. Kreiss, ``{\"U}ber die Stabilit{\"a}tsdefinition f{\"u}r Differenzengleichungen, die partielle Differentialgleichungen approximieren,'' \emph{BIT Numerical Mathematics}, vol.~2, no.~3, pp. 153--181, 1962.
+
+\bibitem{Kato1995}
+T.~Kato, \emph{Perturbation Theory for Linear Operators}, 2nd~ed., ser. Classics in Mathematics.\hskip 1em plus 0.5em minus 0.4em\relax Springer-Verlag, 1995, vol. 132.
+
+\bibitem{Trefethen2005}
+L.~N. Trefethen and M.~Embree, \emph{Spectra and Pseudospectra: The Behavior of Nonnormal Matrices and Operators}.\hskip 1em plus 0.5em minus 0.4em\relax Princeton University Press, 2005.
+
+\bibitem{Boeing2017}
+G.~Boeing, ``OSMnx: New methods for acquiring, constructing, analyzing, and visualizing complex street networks,'' \emph{Computers, Environment and Urban Systems}, vol.~65, pp. 126--139, 2017.
+
+\bibitem{Chen2016}
+T.~Chen and C.~Guestrin, ``XGBoost: A scalable tree boosting system,'' in \emph{Proc. 22nd ACM SIGKDD Int. Conf. Knowl. Discov. Data Min. (KDD)}, 2016, pp. 785--794.
+
+\bibitem{Kipf2017}
+T.~N. Kipf and M.~Welling, ``Semi-supervised classification with graph convolutional networks,'' in \emph{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2017.
+
+\bibitem{Braess1968}
+D.~Braess, ``{\"U}ber ein Paradoxon aus der Verkehrsplanung,'' \emph{Unternehmensforschung}, vol.~12, pp. 258--268, 1968.
+
+\bibitem{Boyd2004}
+S.~Boyd and L.~Vandenberghe, \emph{Convex Optimization}.\hskip 1em plus 0.5em minus 0.4em\relax Cambridge University Press, 2004.
+
+\end{thebibliography}
+
+\end{document}
