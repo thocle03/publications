@@ -319,7 +319,7 @@ Fold 5 & 99.30 \% & 3,099 & 1,790 \\
 \subsection{SHAP Explicability Analysis}
 To open the gradient boosting "black box" and explain directional feature impacts, we computed SHAP (\emph{SHapley Additive exPlanations}) values across test instances (Table~\ref{tab:shap}).
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \caption{SHAP Feature Importance \& Directional Impact on Unitary Emissions ($\text{CO}_2$/veh)}
 \label{tab:shap}
 \centering
@@ -339,7 +339,7 @@ Rank & Feature Name & SHAP Gain Value & Directional Emission Impact \\
 10 & \texttt{avg\_degree} & 0.0231 & \textbf{Reduction}: Higher intersection degree improves routing flexibility. \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \begin{table}[htbp]
 \caption{Top 15 Feature Importances (XGBoost V3 Normalized $\text{CO}_2$/veh)}
@@ -442,7 +442,7 @@ For pre-analyzed networks (warm-start regime), the AI surrogate delivers predict
 
 For completely unknown cities (cold-start regime), Table~\ref{tab:cold_start} summarizes the full end-to-end pipeline benchmark (OSM download via Overpass, `netconvert` compilation, sparse Krylov matrix spectral analysis, and XGBoost inference).
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \caption{Cold-Start Pipeline Benchmark on Unseen European Métropoles}
 \label{tab:cold_start}
 \centering
@@ -457,7 +457,7 @@ Amsterdam (NL) & 75,820 & 19,408 & 43,757 & 6.8 s & 4.25 ms & \textbf{100.7 s} \
 Munich (DE) & 106,744 & 28,990 & 66,697 & 9.9 s & 4.19 ms & \textbf{131.4 s} \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Even for major métropoles like Munich ($106,744$ raw nodes), the complete cold-start integration finishes in under $2$ minutes and $12$ seconds ($131.4$~s), with matrix spectral extraction taking only $9.9$~s. Once processed, all subsequent scenario queries on Munich execute in sub-6~ms.
 
