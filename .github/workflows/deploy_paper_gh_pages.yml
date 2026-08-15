@@ -26,16 +26,16 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: publication_co2_spectral_prediction_v2.tex
+          root_file: publication_co2_spectral_prediction_v3.tex
 
       - name: Prepare site directory for GitHub Pages
         run: |
           mkdir -p site
-          cp publication_co2_spectral_prediction_v2.pdf site/
+          cp publication_co2_spectral_prediction_v3.pdf site/
           if [ -f index.html ]; then
             cp index.html site/
           fi
-          cp publication_co2_spectral_prediction_v2.tex site/
+          cp publication_co2_spectral_prediction_v3.tex site/
           cp IEEEtran.cls site/ 2>/dev/null || true
 
       - name: Upload Pages artifact
