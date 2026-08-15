@@ -180,15 +180,45 @@ Spectral Metric & Target Physical Indicator & Pearson $r$ & Pearson $p$-value & 
 \section{AI Surrogate Model Architecture \& Learning Pipeline}
 
 \subsection{Explanatory Feature Families (47 Descriptors)}
-To substitute microscopic simulation, our surrogate regression model utilizes a compact vector $x \in \mathbb{R}^{47}$ of expert features categorized into 8 thematic families:
+To substitute microscopic simulation, our surrogate regression model utilizes a compact vector $x \in \mathbb{R}^{47}$ of expert features. To prevent any mathematical ambiguity, we formally distinguish between:
+\begin{itemize}
+    \item The \emph{unweighted adjacency matrix} $A_0 \in \{0, 1\}^{n \times n}$, where $A_{0, ij} = 1$ if $(v_i, v_j) \in E$ and $0$ otherwise, capturing pure network connectivity.
+    \item The \emph{weighted impedance matrix} $A_w \in \mathbb{R}^{n \times n}$, where $A_{w, ij} = \frac{L_{ij}}{W_{ij} \cdot C_{ij}}$ if $(v_i, v_j) \in E$ and $0$ otherwise, capturing physical travel time and capacity dynamics.
+\end{itemize}
+The 47 descriptors are categorized into 8 thematic families:
 \begin{enumerate}
     \item \textbf{Traffic Demand \& Composition (7 features)}: Total vehicles ($N_{\text{veh}}$), simulation duration ($T_{\text{sim}}$), fleet proportions ($\text{ratio}_{\text{car}}, \text{ratio}_{\text{moto}}, \text{ratio}_{\text{truck}}, \text{ratio}_{\text{bus}}$), and relative load ($\text{load}_{\text{rel}} = N_{\text{veh}} / n$).
     \item \textbf{Decoupled Electrification Rates (4 features)}: Categorical EV penetration percentages ($\text{pct}_{\text{car\_ev}}, \text{pct}_{\text{moto\_ev}}, \text{pct}_{\text{truck\_ev}}, \text{pct}_{\text{bus\_ev}}$).
-    \item \textbf{General Topology (10 features)}: Node count ($n$), edge count ($m$), spatial density, average degree, asymmetry index $\alpha(G)$, source/sink counts and ratios, and edge-to-node ratio.
-    \item \textbf{Unweighted Spectral Metrics (5 features)}: Unweighted spectral radius $\rho(A)$, maximum singular value $\sigma_1(A)$, unweighted Kreiss constant $K(A)$, unweighted Hardy $H_2$ norm, and Schur non-normalness $\Delta(A)$.
-    \item \textbf{Multidimensional Spectral Space (10 features)}: Top-5 complex eigenvalues ($\lambda_1, \dots, \lambda_5$) and Top-5 singular values ($\sigma_1, \dots, \sigma_5$) capturing structural modularity and alternative routing redundancy.
-    \item \textbf{Physically Weighted Spectral Metrics (3 features)}: Impedance-weighted spectral radius $\rho_w(A)$, weighted maximum singular value $\sigma_{\max, w}(A)$, and weighted Hardy $H_2$ norm.
-    \item \textbf{Interaction Descriptors (2 features)}: Non-linear coupled risk metrics ($\text{risk}_{\text{Kreiss}} = K(A) \times \text{load}_{\text{rel}}$ and $\text{risk}_{\text{spectral}} = \rho(A) \times \text{load}_{\text{rel}}$).
+    \item \textbf{General Topology (10 features)}: 
+    \begin{itemize}
+        \item Node count $n = |V|$ and edge count $m = |E|$.
+        \item Spatial density $D = \frac{m}{n(n-1)}$, measuring the ratio of actual links to the maximum possible directed connections.
+        \item Average degree $\langle k \rangle = \frac{m}{n}$, representing average in-degree and out-degree.
+        \item Asymmetry index $\alpha(G) = 1.0 - |E_{\text{bidirectional}}|/|E|$, where $E_{\text{bidirectional}}$ is the count of two-way links.
+        \item Source count $n_{\text{source}}$ (nodes with in-degree $k_{\text{in}} = 0$) and its ratio $n_{\text{source}}/n$.
+        \item Sink count $n_{\text{sink}}$ (nodes with out-degree $k_{\text{out}} = 0$) and its ratio $n_{\text{sink}}/n$.
+        \item Edge-to-node ratio $\frac{m}{n}$ (identical to average degree $\langle k \rangle$).
+    \end{itemize}
+    \item \textbf{Unweighted Spectral Metrics (5 features)}:
+    \begin{itemize}
+        \item Unweighted spectral radius $\rho(A_0) = \max_i |\lambda_i(A_0)|$.
+        \item Maximum singular value $\sigma_1(A_0) = \|A_0\|_2$ (spectral norm), identical to the first value in Family 5.
+        \item Unweighted Kreiss constant $K(A_0)$.
+        \item Unweighted Hardy $H_2$ norm $\|T_0\|_{H_2}$ of transfer function $T_0(z) = (zI - A_0)^{-1}$.
+        \item Commutator non-normality $\Delta(A_0) = \|A_0 A_0^T - A_0^T A_0\|_F$.
+    \end{itemize}
+    \item \textbf{Multidimensional Spectral Space of $A_0$ (10 features)}: 
+    \begin{itemize}
+        \item Top-5 eigenvalues magnitudes sorted such that $|\lambda_1| \ge |\lambda_2| \ge \dots \ge |\lambda_5|$. Note that $|\lambda_1| = \rho(A_0)$. Only the real magnitudes are utilized, preventing complex number encoding issues in the XGBoost decision trees.
+        \item Top-5 singular values sorted such that $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_5$. Note that $\sigma_1$ is identical to $\sigma_1(A_0)$ in Family 4.
+    \end{itemize}
+    \item \textbf{Physically Weighted Spectral Metrics (3 features)}:
+    \begin{itemize}
+        \item Impedance-weighted spectral radius $\rho(A_w)$.
+        \item Weighted maximum singular value $\sigma_1(A_w)$.
+        \item Weighted Hardy $H_2$ norm $\|T_w\|_{H_2}$ of transfer function $T_w(z) = (zI - A_w)^{-1}$.
+    \end{itemize}
+    \item \textbf{Interaction Descriptors (2 features)}: Non-linear coupled risk metrics ($\text{risk}_{\text{Kreiss}} = K(A_0) \times \text{load}_{\text{rel}}$ and $\text{risk}_{\text{spectral}} = \rho(A_0) \times \text{load}_{\text{rel}}$).
     \item \textbf{Geographical Region One-Hot (6 features)}: Binary encoding of continent of origin serving as a proxy for regional driving behavior and baseline fleet distributions.
 \end{enumerate}
 
