@@ -517,7 +517,6 @@ The surrogate model is operationalized in an interactive web application built w
     SV = 0.4 \times \tanh\left( \frac{NN_{\text{rel}}}{2.0} \right) + 0.6 \times \tanh\left( \frac{K(A_0)}{25.0} \right),
 \end{equation}
 where $NN_{\text{rel}} = \Delta(A_0)/n$ represents the relative non-normality index (the commutator norm scaled by the node dimension $n = |V|$ to enable cross-city comparisons), and $K(A_0)$ is the unweighted Kreiss constant. The weights ($0.4$ and $0.6$) and scaling denominators ($2.0$ and $25.0$) are calibrated empirical coefficients based on our feature correlation analysis (Table~\ref{tab:spectral_correlations}), where the global resolvent bound $K(A_0)$ exhibits a stronger correlation with cascading queue spillbacks than local commutator non-normality. The hyperbolic tangent function $\tanh(\cdot)$ acts as a non-linear mapping that projects unbounded structural metrics into a normalized vulnerability range $[0, 1)$, while implementing a saturation effect: once a network's instability metrics exceed critical thresholds (e.g., $K(A_0) > 50$), the structural vulnerability saturates near 1.0, alerting operators of imminent gridlock susceptibility.
-    \end{equation}
     \item \textbf{Interactive 2D Topology \& MFD}: Rendering vector road skeletons colored by volume and Macroscopic Fundamental Diagrams (MFD) to locate network saturation thresholds.
 \end{enumerate}
 
