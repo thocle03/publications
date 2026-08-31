@@ -308,15 +308,15 @@ To measure the exact incremental contribution of individual spectral sub-compone
 \toprule
 Feature Subset Variant & Features Count & Total $R^2$ (\%) & Total RMSE (kg) & Total MAE (kg) & MAPE (\%) & RMSE Error Increase \\
 \midrule
-\textbf{Full V3 Model (Reference)} & \textbf{44} & \textbf{98.64 \%} & \textbf{6,543.0 kg} & \textbf{3,875.4 kg} & \textbf{25.30 \%} & \textbf{0.0 kg} \\
-Full WITHOUT Singular Values & 32 & 98.24 \% & 7,426.1 kg & 4,242.1 kg & 26.02 \% & +883.1 kg \\
-Full WITHOUT Hardy $H_2$ Norm & 42 & 97.78 \% & 8,346.1 kg & 4,037.2 kg & 25.54 \% & +1,803.1 kg \\
-Full WITHOUT Non-Normalness $\Delta(A)$ & 42 & 97.68 \% & 8,536.0 kg & 4,266.6 kg & 25.79 \% & +1,993.0 kg \\
-Full WITHOUT Kreiss Constant $K(A)$ & 43 & 96.88 \% & 9,890.7 kg & 4,456.5 kg & 23.38 \% & \textbf{+3,347.7 kg (+51.1\%)} \\
+\textbf{Full Model (Reference)} & \textbf{44} & \textbf{98.64 \%} & \textbf{6,543.0 kg} & \textbf{3,875.4 kg} & \textbf{25.30 \%} & \textbf{0.0 kg (1.00$\times$)} \\
+Full WITHOUT Singular Values & 32 & 98.24 \% & 7,426.1 kg & 4,242.1 kg & 26.02 \% & +883.1 kg ($1.13\times$) \\
+Full WITHOUT Hardy $H_2$ Norm & 42 & 97.78 \% & 8,346.1 kg & 4,037.2 kg & 25.54 \% & +1,803.1 kg ($1.28\times$) \\
+Full WITHOUT Non-Normalness $\Delta(A_0)$ & 42 & 97.68 \% & 8,536.0 kg & 4,266.6 kg & 25.79 \% & +1,993.0 kg ($1.30\times$) \\
+Full WITHOUT Kreiss Constant $K(A_0)$ & 43 & 96.88 \% & 9,890.7 kg & 4,456.5 kg & 23.38 \% & \textbf{+3,347.7 kg ($1.51\times$)} \\
 \midrule
-\textbf{Spectral ONLY (Spectral Suite Alone)} & \textbf{18} & \textbf{94.83 \%} & \textbf{12,742.1 kg} & \textbf{7,537.5 kg} & \textbf{57.39 \%} & N/A \\
-Traffic ONLY (Volume \& Fleet Composition) & 11 & 92.52 \% & 15,320.8 kg & 6,875.3 kg & 34.13 \% & N/A ($2.34 \times$ error) \\
-Topology ONLY (Nodes, Edges, Density) & 9 & 90.05 \% & 17,674.8 kg & 9,006.6 kg & 57.64 \% & N/A ($2.70 \times$ error) \\
+\textbf{Spectral ONLY (Spectral Suite Alone)} & \textbf{18} & \textbf{94.83 \%} & \textbf{12,742.1 kg} & \textbf{7,537.5 kg} & \textbf{57.39 \%} & +6,199.1 kg ($1.95\times$) \\
+Traffic ONLY (Volume \& Fleet Composition) & 11 & 92.52 \% & 15,320.8 kg & 6,875.3 kg & 34.13 \% & +8,777.8 kg ($2.34\times$) \\
+Topology ONLY (Nodes, Edges, Density) & 9 & 90.05 \% & 17,674.8 kg & 9,006.6 kg & 57.64 \% & +11,131.8 kg ($2.70\times$) \\
 \bottomrule
 \end{tabular}
 \end{table*}
