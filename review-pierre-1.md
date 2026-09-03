@@ -126,3 +126,21 @@ Ce document détaille toutes les modifications, intégrations graphiques et nuan
 ## 11. Mise en Valeur de l'Innovation Géométrique Barycentrique
 
 * **Mise en avant :** La méthode de projection convexe barycentrique ($E_{\text{bary}}$ dans l'espace $\mathbb{R}^{21}$ basée sur le théorème de Carathéodory) a été intégrée dès l'Abstract et les Contributions majeures en Introduction. Elle positionne le papier non seulement comme un modèle prédictif rapide, mais aussi comme un outil d'Explainable AI géométrique capable d'encadrer formellement les limites de non-extrapolation du surrogate.
+---
+
+## 12. Épuration Visuelle du Graphique de Speedup (Figure 1)
+
+* **Problème identifié :** Les boîtes de texte de légende et les flèches d'annotation au milieu de la figure couvraient les deux courbes et nuisaient à la lisibilité.
+* **Nouvelle mise en page épurée (`fig_speedup.pdf`) :**
+  * **Courbes dégagées et nettes :** La courbe rouge SUMO (avec marqueurs carrés distincts) et la ligne verte constante de l'IA ($5.62$ ms) sont parfaitement visibles sur l'ensemble de la plage de volume ($20\,000$ à $130\,000$ véhicules).
+  * **Graduations temporelles intuitives :** L'axe Y logarithmique affiche directement les repères temporels lisibles : `$5.6$ ms`, `$1$ s`, `$1$ min`, `$1$ hour`, `$8$ hours`.
+  * **Annotations allégées :** Les noms de villes sont positionnés en texte discret au-dessus/en-dessous des points sans encadré encombrant, et la flèche de speedup ($>1\,000\,000\times$) a été déportée proprement sur la marge droite.
+
+---
+
+## 13. Auto-Critique et Limites du Modèle (Section VI - Conclusion)
+
+* **Ajout académique :** Pour démontrer la maturité et l'honnêteté scientifique de l'article, 3 limites constructives et perspectives ont été formellement ajoutées en conclusion :
+  1. **Topologie 2D vs Relief 3D / Tunnels :** L'extraction planaire depuis OpenStreetMap ne capture pas la pente (surconsommation des poids lourds) ni les tunnels souterrains (cas de Guanajuato). L'intégration d'un modèle numérique de terrain (MNT/DEM) dans la matrice d'impédance $A_w$ constitue la suite naturelle.
+  2. **Dynamique des Feux et Frottement Microscopique :** Le modèle spectral opère à l'échelle mésoscopique sans résoudre les cycles adaptatifs des feux tricolores ni le faufilage dense des deux-roues (léger biais sur les villes d'Asie du Sud-Est).
+  3. **Assimilation et Calibration sur Capteurs Réels :** Bien que validé sur des simulations physiques SUMO+HBEFA3, le passage en exploitation dans des centres de contrôle urbains nécessitera une assimilation continue de données IoT et sondes GPS flottantes.

@@ -510,7 +510,7 @@ Munich (DE) & 106,744 & 28,990 & 66,697 & 9.9 s & 4.19 ms & \textbf{131.4 s} \\
 Even for major métropoles like Munich ($106,744$ raw nodes), the complete cold-start integration finishes in under $2$ minutes and $12$ seconds ($131.4$~s), with matrix spectral extraction taking only $9.9$~s. Once processed, all subsequent scenario queries on Munich execute in sub-6~ms.
 
 %-------------------------------------------------------------------------------
-\section{Discussion, Operational Deployment \& Research Roadmap}
+\section{Discussion \& Operational Digital Twin Deployment}
 
 \subsection{Interactive Digital Twin Deployment}
 \begin{figure}[htbp]
@@ -537,6 +537,13 @@ where $NN_{\text{rel}} = \Delta(A_0)/n$ represents the relative non-normality in
 This paper presented a Topological Graph-Spectral Machine Learning framework for fast surrogate prediction of simulation-derived urban $\text{CO}_2$ emissions. By modeling road networks as asymmetric physically weighted impedance matrices and extracting non-normal operator signatures—including spectral radius $\rho(A_0)$, Kreiss constants $K(A_0)$, commutator non-normality $\Delta(A_0)$, and Hardy $H_2$ norms—we successfully bypassed the severe computational limitations of traditional microscopic multi-agent physics simulators. (Note that the Hardy $H_\infty$ norm and Kato perturbation derivatives, while theoretically crucial for bounding worst-case dynamics and guiding control optimization, are excluded from the training feature vector to maintain real-time feature extraction compliance). 
 
 Trained on 349 realistic SUMO simulations across 65 global cities, our vehicle-normalized XGBoost surrogate achieves an internal test $R^2 = 89.39\%$ (and $R^2 = 98.95\%$ on total rebuilt emissions) and a zero-shot cross-city generalization $R^2 = 88.66\%$ on 9 unseen cities. With warm-start inference times under $6$~ms (speedups $>1.0 \times 10^6 \times$ over SUMO) and cold-start cold pipeline processing under $132$~s for métropoles exceeding $100,000$ nodes, this approach provides a scalable, mathematically rigorous foundation for interactive digital twins and real-time urban mobility decarbonization.
+
+Despite these strong capabilities, three primary limitations outline clear avenues for future research:
+\begin{enumerate}
+    \item \textbf{Planar 2D Topologies vs. 3D Terrain}: Road graphs are extracted from 2D OpenStreetMap cartography, omitting vertical road gradients (slopes increasing heavy vehicle fuel consumption) and 3D subterranean bypass tunnels (as observed in Guanajuato). Integrating Digital Elevation Models (DEM) directly into edge impedance weights $A_w$ will bridge this topographical gap.
+    \item \textbf{Microscopic Signal Cycles and Filtering Friction}: The surrogate operates at mesoscopic graph-spectral scale, aggregating intersection capacities without explicitly resolving adaptive traffic light phase timings or chaotic motorcycle lane-filtering dynamics (which caused mild underestimations in dense Asian topologies like Siem Reap).
+    \item \textbf{Continuous Live Sensor Assimilation}: Ground-truth emissions stem exclusively from microscopic SUMO+HBEFA3 simulations. Operational municipal deployments will benefit from continuous Bayesian fine-tuning and calibration against empirical IoT air quality sensor networks and floating-car GPS probes.
+\end{enumerate}
 
 %-------------------------------------------------------------------------------
 \begin{thebibliography}{10}
