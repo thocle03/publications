@@ -93,3 +93,36 @@ Ce document détaille toutes les modifications, intégrations graphiques et nuan
   * **Figure 2 (`fig_cold_start.pdf`) :** Nuage de points avec droite de régression démontrant la scalabilité linéaire ($O(N)$) de l'ingestion Overpass/Krylov en fonction du nombre de nœuds OSM.
   * **Figure 3 (`fig_digital_twin.png`) :** Capture d'écran haute résolution de l'interface Streamlit avec curseurs interactifs et superposition spatiale des émissions.
   * **Suppression de la Section V-B :** La sous-section de roadmap académique a été retirée pour un rendu 100% conforme aux standards IEEE Transactions.
+---
+
+## 8. Résolution des Débordements de Tableaux (Tables 6, 7 et 8)
+
+* **Problème identifié :** Les Table 6 (Top 15 Feature Importances) et Table 7 (Barycentric Reconstruction Error) débordaient sur la marge droite dans le format IEEE à 2 colonnes en raison de la longueur des dénominations de variables.
+* **Correction appliquée (V6) :**
+  Encadrement de la structure tabulaire avec `\resizebox{\columnwidth}{!}{...}` pour les Tables 6, 7 et 8. Les tableaux s'ajustent désormais automatiquement et rigoureusement à la largeur exacte de la colonne ($3.5$ pouces) sans aucun dépassement (`Overfull \hbox` éliminés).
+
+---
+
+## 9. Remplacement du Graphique de Speedup (Figure 1)
+
+* **Problème identifié :** Le diagramme en barres côte-à-côte avec échelle logarithmique rendait mal visuellement l'écart phénoménal entre SUMO (plusieurs milliers de secondes) et l'IA ($0.0056$ s).
+* **Nouveau Graphique conçu (`fig_speedup.pdf`) :**
+  * **Courbe d'explosion physique (SUMO) :** Montre la montée non-linéaire du temps d'exécution en fonction du volume de trafic ($3\,752$ s à $28\,789$ s, soit jusqu'à $8$ heures).
+  * **Ligne plate d'inférence instantanée (IA Surrogate) :** Droite horizontale constante à $y = 5.62$ ms en complexité $O(1)$.
+  * **Zone d'accélération annotée :** Flèches de gap visualisant l'écart supérieur à $1\,000\,000\times$ et étiquettes individuelles par ville (ex. $5.12\text{M}\times$ pour Hobart, $2.76\text{M}\times$ pour Berlin).
+
+---
+
+## 10. Clarification du Protocole d'Évaluation en 3 Phases (Section IV)
+
+* **Remarque :** La séparation des données n'était pas assez explicitée de manière séquentielle.
+* **Formalisation en 3 Phases (Three-Tier Protocol) :**
+  1. **Phase 1 (Entraînement Interne - 80% du corpus de 65 villes / 279 simulations) :** Apprentissage des arbres de décision sur les cibles normalisées par véhicule.
+  2. **Phase 2 (Test & Robustesse Interne - 20% du corpus de 65 villes / 70 simulations + Validation Croisée 5-Fold) :** Évaluation intra-distribution ($R^2 = 89.39\%$ unitaire, $98.95\%$ total reconstruit) et contrôle de la variance statistique ($R^2 = 97.99 \pm 1.00\%$).
+  3. **Phase 3 (Généralisation Zéro-Shot Externe - 9 villes 100% invisibles / 18 simulations) :** Évaluation sur des réseaux routiers complètement exclus des phases 1 et 2 ($R^2 = 88.66\%$), étayée par le diagnostic barycentrique $E_{\text{bary}}$ dans $\mathbb{R}^{21}$.
+
+---
+
+## 11. Mise en Valeur de l'Innovation Géométrique Barycentrique
+
+* **Mise en avant :** La méthode de projection convexe barycentrique ($E_{\text{bary}}$ dans l'espace $\mathbb{R}^{21}$ basée sur le théorème de Carathéodory) a été intégrée dès l'Abstract et les Contributions majeures en Introduction. Elle positionne le papier non seulement comme un modèle prédictif rapide, mais aussi comme un outil d'Explainable AI géométrique capable d'encadrer formellement les limites de non-extrapolation du surrogate.

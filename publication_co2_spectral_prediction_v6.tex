@@ -31,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-Microscopic traffic simulators such as SUMO, combined with physical emission models like HBEFA3, provide high-fidelity $\text{CO}_2$ estimates but are computationally prohibitive for real-time urban planning. This paper introduces a Topological Graph-Spectral Surrogate Framework that predicts city-scale $\text{CO}_2$ emissions instantaneously from the directed road network alone. Road graphs are converted into physically weighted impedance matrices, from which we extract non-normal spectral signatures including spectral radius $\rho(A_0)$ and Kreiss-based transient amplification indicators $K(A_0)$ that quantify congestion sensitivity and network memory. Trained on 349 physics-validated SUMO+HBEFA3 simulations across 65 cities worldwide, our vehicle-normalized XGBoost surrogate achieves $R^2 = 89.39\%$ on unitary emissions and $R^2 = 98.95\%$ on reconstructed totals, with strong zero-shot generalization ($R^2 = 88.66\%$) on unseen urban geometries. Inference executes in under $6$~ms, yielding speedups above $10^6\times$ compared to microscopic simulation, while full cold-start processing for large métropoles completes in under $132$~s. This establishes a mathematically grounded and computationally scalable foundation for real-time digital twins and interactive urban decarbonization tools.
+Microscopic traffic simulators such as SUMO, combined with physical emission models like HBEFA3, provide high-fidelity $\text{CO}_2$ estimates but are computationally prohibitive for real-time urban planning. This paper introduces a Topological Graph-Spectral Surrogate Framework that predicts city-scale $\text{CO}_2$ emissions instantaneously from the directed road network alone. Road graphs are converted into physically weighted impedance matrices, from which we extract non-normal spectral signatures including spectral radius $\rho(A_0)$ and Kreiss-based transient amplification indicators $K(A_0)$ that quantify congestion sensitivity and network memory. Trained on 349 physics-validated SUMO+HBEFA3 simulations across 65 cities worldwide, our vehicle-normalized XGBoost surrogate achieves $R^2 = 89.39\%$ on unitary emissions and $R^2 = 98.95\%$ on reconstructed totals, with strong zero-shot generalization ($R^2 = 88.66\%$) on unseen urban geometries backed by a novel convex barycentric reconstruction diagnostic in $\mathbb{R}^{21}$. Inference executes in under $6$~ms, yielding speedups above $10^6\times$ compared to microscopic simulation, while full cold-start processing for large métropoles completes in under $132$~s. This establishes a mathematically grounded and computationally scalable foundation for real-time digital twins and interactive urban decarbonization tools.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -271,7 +271,12 @@ MLP Regressor (Neural Net) & Multi-Layer Perceptron & -37.75 \% & 65,758 kg & 14
 %-------------------------------------------------------------------------------
 \section{Experimental Validation \& Comparative Results}
 
-All results reported in this section are obtained using an 80/20 train--test split on the full dataset of 349 SUMO+HBEFA3 simulations, with the test set strictly held out during model training. In addition, we perform 5-fold cross-validation to assess robustness, and a separate zero-shot evaluation on 9 unseen cities excluded from both training and validation.
+To ensure methodological rigor and evaluate both in-distribution precision and out-of-distribution transferability, our experimental validation is organized into a \textbf{Three-Tier Evaluation Protocol}:
+\begin{enumerate}
+    \item \textbf{Tier 1: Model Training Phase ($80\%$ of Multi-City Corpus, $279$ Simulations)}: Gradient boosted decision trees are trained on normalized per-vehicle emissions across $65$ global cities spanning diverse topologies.
+    \item \textbf{Tier 2: Internal Testing \& Robustness Phase ($20\%$ Holdout, $70$ Simulations + $5$-Fold Cross-Validation)}: Evaluates predictive accuracy on unseen traffic scenarios within the known 65-city geometry pool ($R^2 = 89.39\%$ unitary, $R^2 = 98.95\%$ rebuilt total), accompanied by a 5-fold cross-validation to verify statistical stability ($R^2 = 97.99 \pm 1.00\%$).
+    \item \textbf{Tier 3: External Zero-Shot Generalization Phase ($9$ Unseen Cities, $18$ Simulations)}: Evaluates true out-of-distribution transfer on completely unobserved urban road networks excluded from both training and validation ($R^2 = 88.66\%$), diagnostically backed by convex barycentric reconstruction in $\mathbb{R}^{21}$.
+\end{enumerate}
 
 \subsection{Global Multi-City Corpus and Ground Truth Generation}
 Our learning corpus comprises 349 complete SUMO physics simulations across 65 geographically and morphologically diverse cities spanning 6 continents (Europe: Paris, Berlin, Madrid, Versailles, Oxford; North America: Los Angeles, Berkeley, San Francisco, Chicago, New York, Savannah; South America: Rio de Janeiro, Sao Paulo, Georgetown, Mendoza, Cuzco; Asia/Middle East: Hanoi, Chiang Mai, Da Nang, Kyoto, Tokyo, Osaka, Seoul, Singapore, Hong Kong, Dubai, Muscat, Mumbai; Africa: Nairobi, Johannesburg, Casablanca, Cairo, Windhoek; Oceania: Sydney, Hobart, Wellington, Christchurch). Each simulation run represents 1 hour of real traffic under varying traffic volumes ($1,000$ to $128,644$ vehicles) and modal compositions.
@@ -356,9 +361,10 @@ Rank & Feature Name & SHAP Gain Value & Directional Emission Impact \\
 \end{table*}
 
 \begin{table}[htbp]
-\caption{Top 15 Feature Importances (XGBoost V3 Normalized $\text{CO}_2$/veh)}
+\caption{Top 15 Feature Importances (XGBoost Surrogate Model Normalized $\text{CO}_2$/veh)}
 \label{tab:feature_importance}
 \centering
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{cllc}
 \toprule
 Rank & Feature Name & Category & Importance (\%) \\
@@ -380,6 +386,7 @@ Rank & Feature Name & Category & Importance (\%) \\
 15 & Edge Count ($m$) & Topology & 2.51 \% \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsection{Zero-Shot Cross-City Generalization \& Barycentric Error Analysis}
@@ -410,21 +417,23 @@ This error measures the Euclidean distance in the $d$-dimensional normalized mor
 \caption{Barycentric Reconstruction Error vs. Max Relative Emission Error}
 \label{tab:barycentric}
 \centering
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{lccl}
 \toprule
-Test City & Reconstruction Error & Max Relative Error & Topo-Physical Profile \\
+Test City & Reconstruction Error ($E_{\text{bary}}$) & Max Relative Error & Topo-Physical Profile \\
 \midrule
 Colmar & 0.11 & +190.57 \% & Dense medieval, strict turn bans \\
 Guanajuato & 0.49 & +108.58 \% & Mountainous, 3D underground tunnels \\
 Siem Reap & 0.60 & -28.16 \% & Radial, heavy motorcycle share \\
 Galveston & 0.67 & +78.83 \% & Perfect regular 2D gridiron \\
-Maseru & 0.86 & -4.47 \% & Linear corridor \\
-Essaouira & 1.05 & -16.31 \% & Fortified medina \\
+Maseru & 0.86 & -4.47 \% & Linear dominant corridor \\
+Essaouira & 1.05 & -16.31 \% & Fortified coastal medina \\
 Nelson & 1.10 & -1.55 \% & River-split bridge bottlenecks \\
-Nara & 2.77 & -31.93 \% & Grid-radial hybrid \\
+Nara & 2.77 & -31.93 \% & Grid-radial historical hybrid \\
 Pamplona & 4.30 & -15.17 \% & Complex hybrid European \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 Colmar and Guanajuato exhibit the lowest reconstruction errors ($0.11$ and $0.49$), proving that their 2D topologies lie squarely within our training convex hull. Their emission discrepancies are strictly non-topological: Guanajuato features 3D subterranean bypass tunnels (free-flow traffic uncaptured by 2D OSM projections), while Colmar employs strict local traffic circulation schemes (pedestrian zones and peripheral detours). This diagnostic proves that the surrogate model does not suffer from algorithmic divergence, but rather identifies unmodeled 3D altitude or policy constraints.
@@ -444,7 +453,7 @@ Second, the comparative benchmark across all validation runs reveals that the pr
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\columnwidth]{fig_speedup.pdf}
-\caption{Computational execution time comparison between microscopic SUMO simulations (seconds, log-scale) and the Graph-Spectral AI surrogate ($5.62$~ms), highlighting massive speedup factors ($>10^6\times$).}
+\caption{Computational execution time comparison: Microscopic SUMO physics simulation (exploding non-linearly with vehicle volume) versus the Graph-Spectral AI surrogate (constant $5.62$~ms inference, $\mathcal{O}(1)$), demonstrating an acceleration gap exceeding $1,000,000\times$.}
 \label{fig:speedup}
 \end{figure}
 
@@ -460,6 +469,7 @@ We benchmarked cumulative CPU execution times between microscopic SUMO physics r
 \caption{Execution Time and Speedup Comparison under Heavy Traffic}
 \label{tab:speedup_heavy}
 \centering
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{lcccc}
 \toprule
 City & Vehicles & SUMO Time (s) & AI Time (s) & Speedup Factor \\
@@ -473,6 +483,7 @@ Paris & 90,909 & 4,340.81 s & 0.0056 s & \textbf{772,400 $\times$} \\
 Sydney & 55,453 & 3,752.45 s & 0.0056 s & \textbf{667,700 $\times$} \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 For pre-analyzed networks (warm-start regime), the AI surrogate delivers predictions in $5.62$~ms ($0.0056$~s) regardless of network size, yielding speedups exceeding $5.1$ million times for Hobart and $2.7$ million times for Berlin. 
