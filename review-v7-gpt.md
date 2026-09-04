@@ -2,7 +2,7 @@
 ## Traitement Rigoureux des 50 Points de Relecture Critique pour IEEE Transactions on Intelligent Transportation Systems (T-ITS)
 
 **Manuscrit cible** : `publication_co2_spectral_prediction_v7.tex`  
-**Auteurs** : Thomas Clerc, Pierre Six  
+**Auteurs** : Thomas Clerc, Pierre Uzarralde, Alain Faye  
 **Institution** : École Hexagone, Paris, France  
 **Date de révision** : 4 Septembre 2026  
 **Document source de critique** : `verif-v6-rigoureuse-gpt.txt`
