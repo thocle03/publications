@@ -305,7 +305,7 @@ The optimal parameter configuration (tree depth $6$, learning rate $0.03$, $500$
 \subsection{Simulation Corpus and Environmental Setup}
 Our experimental dataset comprises 349 high-fidelity microscopic SUMO traffic simulations executed across 65 diverse global cities spanning Europe, North America, Asia, Latin America, Africa, and Oceania. Road networks were extracted directly from OpenStreetMap (OSM) via OSMnx and compiled into SUMO topological networks via \texttt{netconvert}. Traffic demand scenarios were generated through calibrated random-trips routing under varying vehicle density regimes ($N_{\text{veh}} \in [3,500, 140,000]$) and fleet electrification ratios ($\text{Fleet}_{\text{elec}} \in [0.0, 1.0]$).
 
-SUMO was configured with HBEFA 3.3/4.1 passenger car and heavy-duty vehicle emission classes (Euro 6 P_7_7 and HDV categories). All simulations were executed on a dedicated multi-threaded compute node equipped with dual Intel Xeon Platinum 8380 CPUs (160 threads, 2.30 GHz) and 512 GB DDR4 ECC RAM.
+SUMO was configured with HBEFA 3.3/4.1 passenger car and heavy-duty vehicle emission classes (Euro 6 \texttt{P\_7\_7} and HDV categories). All simulations were executed on a dedicated multi-threaded compute node equipped with dual Intel Xeon Platinum 8380 CPUs (160 threads, 2.30 GHz) and 512 GB DDR4 ECC RAM.
 
 Table~\ref{tab:corpus_summary} presents the distribution of simulation runs across global geographical regions and topological scales.
 
@@ -608,9 +608,9 @@ Table~\ref{tab:cold_start} summarizes the cold-start and warm-start execution ti
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{fig_speedup.pdf}
-\caption{Computational execution time comparison: Microscopic SUMO simulation vs. Proposed Graph-Spectral ML Surrogate across evaluated urban network scales.}
-\label{fig:speedup}
+\includegraphics[width=\columnwidth]{fig_cold_start.pdf}
+\caption{Observed cold-start processing latency across European metropolitan networks, encompassing OSM fetching, graph construction, sparse eigensolvers, and XGBoost feature generation.}
+\label{fig:cold_start}
 \end{figure}
 
 \begin{figure}[htbp]
