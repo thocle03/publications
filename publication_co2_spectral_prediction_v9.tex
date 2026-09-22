@@ -1,19 +1,14 @@
 \documentclass[journal]{IEEEtran}
-\usepackage{amsmath,amsfonts,amssymb}
-\usepackage{algorithmic}
-\usepackage{algorithm}
-\usepackage{array}
-\usepackage{textcomp}
-\usepackage{stfloats}
-\usepackage{url}
-\usepackage{verbatim}
+
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{cite}
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{tabularx}
-\usepackage{makecell}
+\usepackage{url}
+\usepackage{xcolor}
 \usepackage{microtype}
+
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 
 \begin{document}
@@ -123,7 +118,8 @@ Table~\ref{tab:operator_hydro} establishes the formal mathematical correspondenc
 \caption{Mathematical Operators and Equivalent Hydrodynamic Traffic Flow Phenomena}
 \label{tab:operator_hydro}
 \centering
-\begin{tabularx}{\textwidth}{lXlX}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{3.2cm}p{4.8cm}p{3.8cm}p{6.0cm}}
 \toprule
 \textbf{Spectral Matrix Operator} & \textbf{Formal Linear Algebraic Definition} & \textbf{Traffic Flow Analogue} & \textbf{Physical Mechanism in SUMO / HBEFA} \\
 \midrule
@@ -133,7 +129,8 @@ Table~\ref{tab:operator_hydro} establishes the formal mathematical correspondenc
 \textbf{Spectral Radius} $\rho(A_w)$ & $\max_i |\lambda_i(A_w)|$ & Global Throughput Capacity & Maximum asymptotic kinematic circulation threshold \\
 \textbf{Spectral Gap} $\Delta\lambda$ & $|\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ & Rapid Flow Mixing Rate & Availability of alternative bypass paths during bottleneck formation \\
 \bottomrule
-\end{tabularx}
+\end{tabular}%
+}
 \end{table*}
 
 \textit{Analytical Commentary on Hydrodynamic Analogues}:
@@ -169,7 +166,7 @@ When $K(\tilde{A}_w) \gg 1$, vehicular perturbations experience massive transien
 
 Because $\rho(\tilde{A}_w) < 1$, the resolvent operator $(e^{i\theta} I - \tilde{A}_w)^{-1}$ is regular and analytic on the closed unit circle $\mathbb{T} = \{e^{i\theta} : \theta \in [0, 2\pi)\}$. We project the resolvent onto the discrete Hardy space $H_2(\mathbb{D}^c)$ over the exterior of the unit disk:
 \begin{equation}
-\| R(z, \tilde{A}_w) \|_{H_2}^2 = \frac{1}{2\pi} \int_0^{2\pi} \operatorname{Tr}\left( (e^{i\theta} I - \tilde{A}_w)^{-*} (e^{i\theta} I - \tilde{A}_w)^{-1} \right) d\theta.
+\| R(z, \tilde{A}_w) \|_{H_2}^2 = \frac{1}{2\pi} \int_0^{2\pi} \operatorname{Tr}\left( \left((e^{i\theta} I - \tilde{A}_w)^{-1}\right)^* (e^{i\theta} I - \tilde{A}_w)^{-1} \right) d\theta.
 \label{eq:hardy}
 \end{equation}
 
@@ -515,10 +512,13 @@ Table~\ref{tab:shap_importance} demonstrates that the surrogate relies heavily o
 To evaluate model capability when deployed in a new city without any prior SUMO simulation calibration, we conduct a zero-shot validation across nine completely unobserved global metropolises: Amsterdam, Bogota, Casablanca, Dublin, Helsinki, Montreal, Seoul, Singapore, and Zurich.
 
 To quantify whether an unseen city network lies within the topological interpolation domain of our training corpus, we formulate a 21-dimensional convex quadratic programming barycentric projection. The full 47-dimensional descriptor vector decomposes into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}] \in \mathbb{R}^{47}$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the normalized scale-invariant topological and spectral features ($n, m, \delta, \bar{k}, \sigma_k, \bar{L}, L_{\text{net}}, \sigma_W^2, C_{\text{tot}}, M, \rho(A_0), \rho(A_w), \Delta\lambda, |\lambda_1|, \dots, |\lambda_5|, \Delta(A_0), \Delta(A_w), K(A_w)$). Let $\mathbf{X}_{\text{train}} \in \mathbb{R}^{65 \times 21}$ denote the matrix of training cities in this invariant subspace. We solve:
-\begin{align}
-\min_{\mathbf{w} \in \mathbb{R}^{65}} \quad & \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w} \|_2^2 + \gamma \| \mathbf{w} \|_2^2 \label{eq:barycentric_qp} \\
-\text{s.t.} \quad & \sum_{j=1}^{65} w_j = 1, \quad w_j \ge 0 \quad \forall j \in \{1, \dots, 65\}. \nonumber
-\end{align}
+\begin{equation}
+\begin{aligned}
+\min_{\mathbf{w} \in \mathbb{R}^{65}} \quad & \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w} \|_2^2 + \gamma \| \mathbf{w} \|_2^2 \\
+\text{s.t.} \quad & \sum_{j=1}^{65} w_j = 1, \quad w_j \ge 0 \quad \forall j \in \{1, \dots, 65\}.
+\end{aligned}
+\label{eq:barycentric_qp}
+\end{equation}
 
 Here, $n_{\text{active}} \in [1, 13]$ is defined explicitly as the count of training cities with strictly positive barycentric weights ($w_j > 0$). The residual distance to the training convex hull $d_{\mathcal{H}} = \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w}^* \|_2$ provides an automated confidence diagnostic for zero-shot deployment.
 
@@ -608,9 +608,9 @@ Table~\ref{tab:cold_start} summarizes the cold-start and warm-start execution ti
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\columnwidth]{fig_cold_start.pdf}
-\caption{Observed cold-start processing latency across European metropolitan networks, encompassing OSM fetching, graph construction, sparse eigensolvers, and XGBoost feature generation.}
-\label{fig:cold_start}
+\includegraphics[width=\columnwidth]{fig_speedup.pdf}
+\caption{Computational execution time comparison: Microscopic SUMO simulation vs. Proposed Graph-Spectral ML Surrogate across evaluated urban network scales.}
+\label{fig:speedup}
 \end{figure}
 
 \begin{figure}[htbp]
