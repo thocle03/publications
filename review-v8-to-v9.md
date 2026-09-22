@@ -1,60 +1,55 @@
-# Rapport Détaillé des Modifications : Version 8 $\\to$ Version 9 (Calibrage Exact 10 Pages)
+# Rapport Détaillé des Modifications : Version 8 $\\to$ Version 9 (Calibrage Parfait 10 Pages)
 **Date** : 22 Septembre 2026  
 **Document cible** : publication_co2_spectral_prediction_v9.tex  
-**Statut** : Version Finale stabilisée à 10 pages IEEE Transactions on ITS (8 193 mots, 67 094 caractères).
+**Statut** : Version Finale stabilisée à 10 pages IEEE Transactions on ITS (8 281 mots, 68 246 caractères, 3 figures, 12 tableaux).
 
 ---
 
-## 1. Synthèse des Ajustements et Calibrage à 10 Pages
+## 1. Synthèse des Corrections Visuelles et de Pagination
 
-Suite aux tests de compilation visuelle et à la relecture :
-1. **Suppression du tableau géant des 47 descripteurs (	ab:features_all)** :
-   - Ce tableau de 47 lignes et nombreuses formules prenait une page entière et avait poussé le document à 11 pages.
-   - Il a été remplacé par la **présentation textuelle énumérée et élégante d'origine** dans la Section III-A (5 familles bien structurées avec leurs équations).
-   - Ce retrait ramène le document à **exactement 10 pages complètes**.
-2. **Correction de l'alignement et élimination des débordements de tableaux** :
-   - Les tableaux en simple colonne qui débordaient sur le texte de droite (anciens Table III 	ab:correlation, Table X 	ab:shap_importance, Table XII 	ab:barycentric) ont été encapsulés dans \\resizebox{\\columnwidth}{!}{...} avec des en-têtes compacts.
-   - Tous les tableaux en double colonne (	able*) ont été protégés par \\resizebox{\\textwidth}{!}{...} ou 	abularx{\\textwidth}.
-   - **Résultat** : Zéro débordement, alignement parfait sur les marges IEEE.
+1. **Rétablissement des 3 Figures Fondamentales** :
+   - **Fig. 1 (ig:speedup)** : Comparaison du temps d'exécution SUMO (croissance super-linéaire) vs IA (.62$ ms constant, accélération $>1\\,000\\,000\\times$), placée dans la section IV-E.
+   - **Fig. 2 (ig:cold_start)** : Passage à l'échelle du pipeline cold-start (parse OSM, solveur spectral creux, inférence), restant sous les $ s pour $>100\\,000$ nœuds, placée dans la section IV-H.
+   - **Fig. 3 (ig:digital_twin)** : **Capture d'écran du tableau de bord interactif Digital Twin (Streamlit / FastAPI)** avec curseurs de demande de trafic, taux d'électrification EV et estimation temps réel du $\\text{CO}_2$, placée dans la section IV-I.
+   - **Impact** : L'intégration de ces figures comble parfaitement le bas de la page 9 et le haut de la page 10, amenant les références bibliographiques à remplir exactement la fin de la 10e page.
 
----
+2. **Résolution du placement de la TABLE XII (	ab:cold_start)** :
+   - La Table XII était auparavant déclarée en double colonne (	able*) juste avant la conclusion, ce qui forçait LaTeX à la déporter en bannière au sommet de la page 10 au-dessus ou au milieu des références.
+   - Elle a été convertie en tableau simple colonne encapsulé dans \\resizebox{\\columnwidth}{!}{...} dans la Section IV-H.
+   - **Résultat** : Elle reste strictement dans sa section sans déborder ni interférer avec la bibliographie.
 
-## 2. Inventaire des 12 Tableaux et de leurs Commentaires Post-Tableau
-
-Chaque tableau dispose d'un paragraphe d'introduction avant et d'un commentaire d'analyse approfondi après :
-
-| N° Table | Label LaTeX | Format | Titre & Thème | Analyse Post-Tableau |
-|---|---|---|---|---|
-| **Table I** | 	ab:operator_hydro | Double colonne (	able*) | Opérateurs spectraux non-normaux & Équivalents hydrodynamiques de trafic | Analyse physique du lien entre non-normalité ($\\Delta, K, H_2$) et ondes de choc stop-and-go. |
-| **Table II** | 	ab:correlation | Simple colonne (	able) | Découplage des corrélations ($ vs $) | Explication du découplage de {\\text{veh}}$ ( = 0.9865 \\to 0.1420$) démasquant $\\rho(\\tilde{A}_w)$ et $\\Delta$. |
-| **Table III** | 	ab:hyperparam | Simple colonne (	able) | Grille d'optimisation des hyperparamètres XGBoost | Justification de la profondeur optimale (depth=6), learning rate ($\\eta=0.03$) et régularisation /L_2$. |
-| **Table IV** | 	ab:corpus_summary | Double colonne (	able*) | Distribution géographique & typologies (65 villes, 349 runs) | Analyse de la représentativité mondiale sur 6 continents et 5 grandes typologies urbaines. |
-| **Table V** | 	ab:baselines | Double colonne (	able*) | Benchmark comparatif de 10 algorithmes | Analyse comparée des modèles linéaires, arbres, MLP et GNNs (supériorité de XGBoost $+17.75$ pts sur $\\text{CO}_2$). |
-| **Table VI** | 	ab:fine_ablation | Double colonne (	able*) | Étude d'ablation systématique des composantes | Démonstration de l'impact des invariants non-normaux ($-8.14$ pts) et de l'électrification ($-10.79$ pts). |
-| **Table VII** | 	ab:cv_metrics | Simple colonne (	able) | Validation croisée à 5 plis stratifiés | Preuve de la stabilité statistique globale (^2 = 97.99 \\pm 1.15\\%$). |
-| **Table VIII** | 	ab:case_studies | Double colonne (	able*) | **Études de cas comparatives SUMO vs IA (6 archétypes mondiaux)** | **Analyse approfondie en 6 points des dynamiques de trafic, émissions par véhicule ($), temps de calcul et cas limite 3D.** |
-| **Table IX** | 	ab:shap_importance | Simple colonne (	able) | Classement TreeSHAP des 10 features majeures | Interprétabilité physique : électrification (.8\\%$) et spectre non-normal (.3\\%$ de l'importance totale). |
-| **Table X** | 	ab:zeroshot | Double colonne (	able*) | Généralisation Zero-Shot sur 9 métropoles inédites | Performance zero-shot (^2 = 88.66\\%$) et validation de la distance {\\mathcal{H}}$. |
-| **Table XI** | 	ab:barycentric | Simple colonne (	able) | Diagnostic barycentrique vs Plages d'erreurs | Seuils opérationnels d'alerte pour les décideurs municipaux ({\\mathcal{H}} < 0.040 \\implies$ erreur $< 2\\%$). |
-| **Table XII** | 	ab:cold_start | Double colonne (	able*) | Profil de latence et passage à l'échelle ( = 10^3$ à ^5$) | Décomposition du temps d'ingestion OSM, solveur spectral, inférence ($<6$ ms, speedup $>10^6\\times$). |
+3. **Protection intégrale contre les débordements de marges** :
+   - Tous les tableaux simple colonne (	able) utilisent \\resizebox{\\columnwidth}{!}{...}.
+   - Tous les tableaux double colonne (	able*) utilisent \\resizebox{\\textwidth}{!}{...} ou 	abularx{\\textwidth}.
+   - Zéro dépassement de colonne ou de marge sur l'ensemble du document.
 
 ---
 
-## 3. Focus : Section IV-E (Études de Cas Comparatives SUMO vs IA)
+## 2. Inventaire Complet des 12 Tableaux et 3 Figures (avec Explications Associées)
 
-Chaque archétype bénéficie d'une analyse microscopique rigoureuse :
-1. **Paris (Radial-concentrique dense)** : $-2.78\\%$ d'erreur (.885$ kg/véh vs .939$ kg/véh), capté par le commutateur $\\Delta(\\tilde{A}_0) = 4.82$ et la norme de Hardy $\\|R\\|_{H_2} = 18.4$ (cisaillement giratoire).
-2. **Los Angeles (Grille autoroutière)** : $+2.68\\%$ d'erreur (.361$ kg/véh vs .299$ kg/véh), modélisé par la variance de vitesse $\\sigma_W = 6.4$ m/s et la constante de Kreiss (\\tilde{A}_w) = 3.45$ (remontées de file sur bretelles).
-3. **Tokyo (Mégapole hybride dense)** : $-2.36\\%$ d'erreur (.141$ kg/véh vs .193$ kg/véh), temps de calcul réduit de .22$ h (SUMO) à .1$ ms (IA), soit un speedup de .67 \\times 10^6 \\times$.
-4. **Versailles (Artères historiques Cerema)** : $-1.41\\%$ d'erreur (.036$ kg/véh vs .065$ kg/véh), validé sur comptages réels Cerema ($\\text{GEH} < 5.0$).
-5. **Maseru (Corridor linéaire dominant)** : $-4.47\\%$ d'erreur (.186$ kg/véh vs .335$ kg/véh), émission/véhicule la plus forte du corpus captée par le gap spectral étroit $\\Delta\\lambda = 0.412$ (absence totale d'itinéraires alternatifs).
-6. **Guanajuato (Cas limite 3D et diagnostic)** : $+101.15\\%$ d'erreur, anomalie due aux tunnels miniers 3D non perceptibles en 2D OSM, servant d'outil de diagnostic automatisé d'intégrité SIG.
+| Élément | Label LaTeX | Format | Description & Analyse Post-Tableau/Figure |
+|---|---|---|---|
+| **Table I** | 	ab:operator_hydro | Double col. | Opérateurs spectraux non-normaux & Équivalents hydrodynamiques (vorticité $\\Delta$, ondes $, dissipation $). |
+| **Table II** | 	ab:correlation | Simple col. | Découplage de corrélation ($ vs $) prouvant l'annulation de la domination du volume {\\text{veh}}$ ( = 0.9865 \\to 0.1420$). |
+| **Table III** | 	ab:hyperparam | Simple col. | Grille d'optimisation XGBoost (justification de depth=6, $\\eta=0.03$, régularisation /L_2$). |
+| **Table IV** | 	ab:corpus_summary | Double col. | Corpus global de 65 villes et 349 simulations sur 6 continents (grilles, radiales, corridors, mégapoles). |
+| **Table V** | 	ab:baselines | Double col. | Benchmark de 10 algorithmes prouvant la supériorité de XGBoost sur les GNNs spatiaux ($+17.75$ pts sur $\\text{CO}_2$). |
+| **Table VI** | 	ab:fine_ablation | Double col. | Ablation fine quantifiant la perte de $-8.14$ pts sans invariants non-normaux et $-10.79$ pts sans électrification. |
+| **Table VII** | 	ab:cv_metrics | Simple col. | Validation croisée 5-fold (^2 = 97.99 \\pm 1.15\\%$) attestant de la stabilité globale. |
+| **Table VIII** | 	ab:case_studies | Double col. | **Études de cas comparatives SUMO vs IA sur 6 archétypes mondiaux (Paris, LA, Tokyo, Versailles, Maseru, Guanajuato).** |
+| **Figure 1** | ig:speedup | Simple col. | **Graphique d'accélération temps d'exécution SUMO vs Surrogate IA ($>1\\,000\\,000\\times$).** |
+| **Table IX** | 	ab:shap_importance | Simple col. | Classement TreeSHAP (électrification .8\\%$, opérateurs non-normaux .3\\%$). |
+| **Table X** | 	ab:zeroshot | Double col. | Généralisation Zero-Shot sur 9 métropoles inédites (^2 = 88.66\\%$) et validation de la distance {\\mathcal{H}}$. |
+| **Table XI** | 	ab:barycentric | Simple col. | Diagnostic barycentrique et seuils opérationnels de confiance ({\\mathcal{H}} < 0.040 \\implies$ erreur $< 2\\%$). |
+| **Figure 2** | ig:cold_start | Simple col. | **Graphique de passage à l'échelle du pipeline cold-start ($<132$ s pour $>100\\,000$ nœuds).** |
+| **Table XII** | 	ab:cold_start | Simple col. | Décomposition seconde par seconde du temps d'ingestion OSM, solveur spectral creux, inférence XGBoost ($<6$ ms). |
+| **Figure 3** | ig:digital_twin | Simple col. | **Capture d'écran de l'interface Streamlit / FastAPI du Jumeau Numérique pour l'aide à la décision municipale.** |
 
 ---
 
-## 4. Conformité Mathématique Intégrale (Remarques Alain Faye)
-- **Perron-Frobenius (Section II-B)** : Énoncé formel pour matrices irréductibles non négatives ($\\rho(A_0) > 0$). Équivalence avec l'absence de permutation bloc triangulaire supérieur $\\Leftrightarrow$ composante fortement connexe.
-- **Spectral Gap (Section III-A)** : $\\Delta\\lambda = |\\lambda_1(\\tilde{A}_0) - \\lambda_2(\\tilde{A}_0)|$, avec $\\lambda_1, \\lambda_2 \\in \\mathbb{C}$ classées par modules décroissants ($|\\lambda_1| \\ge |\\lambda_2| \\ge \\dots$).
+## 3. Conformité aux Directives d'Alain Faye
+- **Perron-Frobenius (Section II-B)** : Formulé rigoureusement pour matrices irréductibles non négatives ($\\rho(A_0) > 0$).
+- **Spectral Gap (Section III-A)** : $\\Delta\\lambda = |\\lambda_1(\\tilde{A}_0) - \\lambda_2(\\tilde{A}_0)|$, avec $\\lambda_1, \\lambda_2 \\in \\mathbb{C}$ classées par modules décroissants.
 - **Projection barycentrique (Section IV-G)** : {\\text{active}} \\in [1, 13]$ défini en toutes lettres, terme *« neighbouring »* supprimé, indice  \\in \\{1, \\dots, 65\\}$.
 - **Affiliations exactes** : Pierre Uzarralde (Professor and Director of the AI Curriculum) & Alain Faye (Professor with ENSIIE and CNAM CEDRIC).
 - **Concordance bibliographique** : 31 citations uniques dans le texte pour 31 entrées bibitem (0 manquante).

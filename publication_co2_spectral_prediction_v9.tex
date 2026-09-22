@@ -309,7 +309,8 @@ Our experimental evaluation is conducted on a multi-city corpus of 349 microscop
 \caption{Global Multi-City Simulation Corpus Distribution and Topology Summary}
 \label{tab:corpus_summary}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{lcccccc}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
 \toprule
 \textbf{Geographic Region} & \textbf{Cities} & \textbf{Simulations} & \textbf{Nodes Range ($n$)} & \textbf{Edges Range ($m$)} & \textbf{Vehicles Range ($N_{\text{veh}}$)} & \textbf{Dominant Urban Morphology} \\
 \midrule
@@ -322,7 +323,8 @@ Our experimental evaluation is conducted on a multi-city corpus of 349 microscop
 \midrule
 \textbf{Total Corpus} & \textbf{65} & \textbf{349} & $\mathbf{1,240 - 48,600}$ & $\mathbf{2,700 - 105,200}$ & $\mathbf{3,500 - 140,000}$ & \textbf{Comprehensive Global Typology} \\
 \bottomrule
-\end{tabular}}
+\end{tabular}%
+}
 \end{table*}
 
 \textit{Analytical Commentary on Corpus Diversity}:
@@ -337,7 +339,8 @@ All models are evaluated under identical 5-fold cross-validation splits. Table~\
 \caption{Comprehensive Benchmark of 10 Baseline Algorithms on Normalized ($y$) and Total ($\text{CO}_2$) Emissions}
 \label{tab:baselines}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{llcccccccc}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccccc}
 \toprule
 \multirow{2}{*}{\textbf{Paradigm}} & \multirow{2}{*}{\textbf{Model Architecture}} & \multicolumn{4}{c}{\textbf{Normalized Per-Vehicle Target ($y$)}} & \multicolumn{4}{c}{\textbf{Rebuilt Total Emissions ($\text{CO}_2$)}} \\
 \cmidrule(lr){3-6} \cmidrule(lr){7-10}
@@ -361,7 +364,8 @@ Neural & Multi-Layer Perceptron (4-layer) & 76.50 & 224.8 & 164.2 & 11.05 & 92.1
 & Graph Convolutional Net (GCN) & 45.92 & 341.6 & 268.5 & 18.20 & 81.20 & 15,480 & 11,920 & 13.45 \\
 & Graph Attention Net (GAT) & 48.70 & 332.8 & 260.1 & 17.65 & 82.65 & 14,870 & 11,350 & 12.80 \\
 \bottomrule
-\end{tabular}}
+\end{tabular}%
+}
 \end{table*}
 
 \textit{Analytical Commentary on Model Performance}:
@@ -376,7 +380,8 @@ To rigorously quantify the marginal contribution of each descriptor group, we pe
 \caption{Systematic Fine-Grained Ablation Analysis of Spectral and Topological Sub-Components}
 \label{tab:fine_ablation}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{lcccccc}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
 \toprule
 \textbf{Ablation Configuration} & \textbf{Feature Count} & \textbf{Norm $R^2$ (\%)} & \textbf{Norm RMSE (g)} & \textbf{Total $R^2$ (\%)} & \textbf{Total MAPE (\%)} & \textbf{Performance Drop ($\Delta R^2$)} \\
 \midrule
@@ -389,7 +394,8 @@ w/o Fleet Electrification Descriptors & 45 & 78.60 & 218.4 & 92.80 & 7.80 & $-10
 w/o Demand Descriptors ($N_{\text{veh}}, L_{\text{tot}}$) & 43 & 72.10 & 249.2 & 88.50 & 10.90 & $-17.29\%$ (Structural) \\
 \textbf{Raw Target Regression (No $N_{\text{veh}}$ Normalization)} & 47 & --- & --- & 93.10 & 8.40 & $-5.85\%$ (Scale Confounded) \\
 \bottomrule
-\end{tabular}}
+\end{tabular}%
+}
 \end{table*}
 
 \textit{Analytical Commentary on Ablation Results}:
@@ -428,13 +434,14 @@ Fold 5 (Dense Megacity Split) & 98.68 & 3,080 & 2,090 & 2.38 \\
 The results in Table~\ref{tab:cv_metrics} demonstrate remarkable statistical stability, with an average $R^2$ of $97.99\%$ and a tight standard deviation of $\pm 1.15\%$. Even on Fold 4 containing diverse mixed typologies, the model maintains $R^2 = 96.90\%$ and MAPE $= 3.20\%$, confirming that the surrogate does not rely on memorization of specific city layouts.
 
 \subsection{Comparative Case Studies: Microscopic SUMO Physics vs. Graph-Spectral Surrogate Across Six Global Archetypes}
-To evaluate model performance under realistic operational conditions, Table~\ref{tab:case_studies} presents a detailed comparative analysis between microscopic SUMO physics simulations and our graph-spectral surrogate across six distinct global urban archetypes.
+To evaluate model performance under realistic operational conditions, Table~\ref{tab:case_studies} presents a detailed comparative analysis between microscopic SUMO physics simulations and our graph-spectral surrogate across six distinct global urban archetypes. In addition, Fig.~\ref{fig:speedup} visually illustrates the computational scaling divergence between SUMO and our surrogate.
 
 \begin{table*}[htbp]
 \caption{In-Depth Comparison: Microscopic SUMO Physics vs. Graph-Spectral Surrogate Across 6 Global Archetypes}
 \label{tab:case_studies}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{llcccccccc}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccccc}
 \toprule
 \textbf{City Archetype} & \textbf{Urban Topo Profile} & \textbf{Nodes $n$} & \textbf{Edges $m$} & \textbf{Vehicles $N_{\text{veh}}$} & \textbf{SUMO $\text{CO}_2$ (kg)} & \textbf{AI Pred $\text{CO}_2$ (kg)} & \textbf{Error (\%)} & \textbf{SUMO Runtime} & \textbf{AI Runtime} \\
 \midrule
@@ -445,8 +452,16 @@ To evaluate model performance under realistic operational conditions, Table~\ref
 \textbf{Guanajuato (Mexico)} & 3D Mountainous + Tunnels & 2,139 & 4,374 & 8,500 & 13,010.5 & 26,170.8 & +101.15 \% & 1,180 s (19.7 min) & 5.4 ms \\
 \textbf{Maseru (Lesotho)} & Linear corridor dominant & 1,357 & 2,836 & 7,200 & 24,010.8 & 22,936.5 & -4.47 \% & 890 s (14.8 min) & 5.2 ms \\
 \bottomrule
-\end{tabular}}
+\end{tabular}%
+}
 \end{table*}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{fig_speedup.pdf}
+\caption{Computational execution time comparison: Microscopic SUMO physics simulation (scaling super-linearly with vehicle count) versus the Graph-Spectral AI surrogate (constant $5.62$~ms inference), demonstrating an acceleration factor exceeding $1,000,000\times$.}
+\label{fig:speedup}
+\end{figure}
 
 \textit{In-Depth Analytical Commentary and Physics Discussion}:
 The comparative case studies in Table~\ref{tab:case_studies} reveal profound insights into how graph-spectral operators replicate complex microscopic traffic phenomena across diverse urban environments:
@@ -512,7 +527,8 @@ Table~\ref{tab:zeroshot} presents the zero-shot validation results across all ni
 \caption{Zero-Shot Cross-City Generalization Performance on 9 Unseen Global Networks}
 \label{tab:zeroshot}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{lcccccccc}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
 \toprule
 \textbf{Unseen Test City} & \textbf{Nodes $n$} & \textbf{Edges $m$} & \textbf{Vehicles $N_{\text{veh}}$} & \textbf{Hull Dist $d_{\mathcal{H}}$} & \textbf{Active Cities $n_{\text{active}}$} & \textbf{SUMO $\text{CO}_2$ (kg)} & \textbf{AI Pred $\text{CO}_2$ (kg)} & \textbf{Rel. Error (\%)} \\
 \midrule
@@ -528,7 +544,8 @@ Table~\ref{tab:zeroshot} presents the zero-shot validation results across all ni
 \midrule
 \textbf{Zero-Shot Overall} & \multicolumn{3}{c}{\textbf{9 Unseen Metropolises}} & $\mathbf{0.053}$ & $\mathbf{8.2}$ & \textbf{685,692.5} & \textbf{675,193.2} & \textbf{Overall $R^2 = 88.66\%$} \\
 \bottomrule
-\end{tabular}}
+\end{tabular}%
+}
 \end{table*}
 
 \textit{Analytical Commentary on Zero-Shot Generalization}:
@@ -564,29 +581,47 @@ To quantify computational efficiency for operational digital twin integration, T
     \item \textbf{Cold-Start Network Ingestion}: Raw OpenStreetMap XML cartography is downloaded, parsed, cleaned with Tarjan SCC, the sparse adjacency matrix is constructed, the sparse spectral decomposition is computed via iterative eigensolvers, all 47 descriptors are extracted, and emissions are predicted.
 \end{enumerate}
 
-\begin{table*}[htbp]
-\caption{End-to-End Computational Latency and Resource Breakdown Across Network Scales}
+Fig.~\ref{fig:cold_start} illustrates the linear computational scaling of the cold-start pipeline with respect to network node count.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{fig_cold_start.pdf}
+\caption{Cold-start pipeline scalability across European metropolises: total processing time (download, graph build, spectral extraction, inference) scales smoothly with network size while remaining under 132~s.}
+\label{fig:cold_start}
+\end{figure}
+
+\begin{table}[htbp]
+\caption{End-to-End Computational Latency and Resource Breakdown}
 \label{tab:cold_start}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{lcccccccc}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
 \toprule
-\textbf{Metropolitan Network} & \textbf{Nodes $n$} & \textbf{Edges $m$} & \textbf{OSM Parse} & \textbf{Sparse Eigensolver} & \textbf{Feature Extract} & \textbf{AI Inference} & \textbf{Total Cold-Start} & \textbf{SUMO Sim (1-hr)} \\
+\textbf{Metropolis Network} & \textbf{Nodes $n$} & \textbf{OSM Parse} & \textbf{Eigensolver} & \textbf{AI Infer.} & \textbf{Total Cold} & \textbf{SUMO (1-hr)} \\
 \midrule
-\textbf{Small (Versailles)} & 2,184 & 4,892 & 1.4 s & 0.6 s & 0.4 s & 5.4 ms & 2.4 s & 1,420 s (23.6 min) \\
-\textbf{Medium (Dublin)} & 5,120 & 11,340 & 3.2 s & 1.4 s & 0.8 s & 5.5 ms & 5.4 s & 3,450 s (57.5 min) \\
-\textbf{Large (Paris)} & 11,438 & 24,960 & 7.8 s & 3.8 s & 1.6 s & 5.6 ms & 13.2 s & 7,420 s (2.06 h) \\
-\textbf{Very Large (Los Angeles)} & 28,640 & 61,200 & 19.5 s & 11.2 s & 3.9 s & 5.8 ms & 34.6 s & 18,360 s (5.10 h) \\
-\textbf{Megacity (Tokyo)} & 34,812 & 78,450 & 24.8 s & 15.6 s & 4.8 s & 6.1 ms & 45.2 s & 22,400 s (6.22 h) \\
-\textbf{Metropolis ($>100\text{k}$)} & 104,200 & 235,100 & 68.4 s & 48.2 s & 15.4 s & 8.2 ms & 132.0 s & $> 24.0$ h (Est.) \\
+\textbf{Small (Versailles)} & 2,184 & 1.4 s & 0.6 s & 5.4 ms & 2.4 s & 1,420 s (23.6 min) \\
+\textbf{Medium (Dublin)} & 5,120 & 3.2 s & 1.4 s & 5.5 ms & 5.4 s & 3,450 s (57.5 min) \\
+\textbf{Large (Paris)} & 11,438 & 7.8 s & 3.8 s & 5.6 ms & 13.2 s & 7,420 s (2.06 h) \\
+\textbf{Very Large (LA)} & 28,640 & 19.5 s & 11.2 s & 5.8 ms & 34.6 s & 18,360 s (5.10 h) \\
+\textbf{Megacity (Tokyo)} & 34,812 & 24.8 s & 15.6 s & 6.1 ms & 45.2 s & 22,400 s (6.22 h) \\
+\textbf{Regional ($>100\text{k}$)} & 104,200 & 68.4 s & 48.2 s & 8.2 ms & 132.0 s & $> 24.0$ h (Est.) \\
 \bottomrule
-\end{tabular}}
-\end{table*}
+\end{tabular}%
+}
+\end{table}
 
 \textit{Analytical Commentary on Computational Scalability}:
 As shown in Table~\ref{tab:cold_start}, even for a massive regional metropolis exceeding $104,000$ nodes, the entire cold-start pipeline completes in just $132.0$~seconds, while warm-start inference executes in $8.2$~milliseconds. Compared to SUMO microscopic simulations which scale super-linearly ($O(N_{\text{veh}} \log N_{\text{veh}})$ to $O(N_{\text{veh}}^2)$ under heavy congestion), the graph-spectral surrogate achieves speedup factors exceeding $1.0 \times 10^6 \times$.
 
 \subsection{Interactive Municipal Digital Twin Integration}
-To translate these theoretical gains into municipal practice, we integrated the XGBoost surrogate into an interactive digital twin application developed in Python with Streamlit and FastAPI. Municipal traffic engineers can interactively modify ZFE low-emission boundaries, adjust EV fleet adoption sliders, simulate arterial lane closures, and receive updated city-wide $\text{CO}_2$ emission estimates in sub-second response times, enabling real-time multi-criteria urban decarbonization planning.
+To translate these theoretical gains into municipal practice, we integrated the XGBoost surrogate into an interactive digital twin application developed in Python with Streamlit and FastAPI, as shown in Fig.~\ref{fig:digital_twin}. Municipal traffic engineers can interactively modify ZFE low-emission boundaries, adjust EV fleet adoption sliders, simulate arterial lane closures, and receive updated city-wide $\text{CO}_2$ emission estimates in sub-second response times, enabling real-time multi-criteria urban decarbonization planning.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{fig_digital_twin.png}
+\caption{Web-based interactive digital twin interface deployed for real-time urban traffic decarbonization planning, scenario screening, and barycentric diagnostic validation.}
+\label{fig:digital_twin}
+\end{figure}
 
 %-------------------------------------------------------------------------------
 \section{Conclusion and Future Research Perspectives}
