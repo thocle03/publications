@@ -27,7 +27,7 @@
 \maketitle
 
 \begin{abstract}
-Microscopic agent-based traffic simulators (e.g., SUMO, Aimsun) model urban vehicle interactions and environmental emissions with high physical fidelity, but their super-linear computational scaling renders iterative municipal planning, real-time traffic signal optimization, and exploratory scenario screening prohibitively slow. In this paper, we propose a physics-grounded graph-spectral surrogate framework that estimates simulation-derived urban traffic $\text{CO}_2$ emissions in sub-millisecond inference time. We formulate directed urban road networks as asymmetric, impedance-weighted dissipative transition operators ($\tilde{A}_0, \tilde{A}_w$) with spectral radius $\rho(\tilde{A}) \le 0.95 < 1$, ensuring rigorous mathematical convergence of discrete Hardy $H_2$ resolvent spaces and discrete Lyapunov equations. We extract 20 non-normal spectral invariants, including the Perron-Frobenius spectral radius $\rho(A)$, the Kreiss transient growth constant $K(\tilde{A})$, commutator non-normality $\Delta(\tilde{A})$, $\epsilon$-pseudospectral radii $\alpha_\epsilon(\tilde{A})$, discrete Hardy $H_2$ resolvent norms, and analytical first- and second-order Kato perturbation derivatives. Combined with traffic demand, topological descriptors, and fleet electrification proxies into a 47-dimensional descriptor space, our vehicle-normalized XGBoost surrogate ($y = \text{CO}_2 / N_{\text{veh}}$) is trained on 349 microscopic SUMO simulations across 65 global cities spanning six continents. The model achieves an internal test $R^2 = 89.39\%$ on normalized per-vehicle emissions ($R^2 = 98.95\%$ on rebuilt total emissions) and 5-fold cross-validation $R^2 = 97.99 \pm 0.90\%$, outperforming spatial Graph Convolutional Networks (GCN) by $+17.75$ percentage points on total emissions (+43.47 points on normalized emissions) due to immunity from graph over-smoothing and scale-confounding. On nine completely unseen zero-shot validation cities, the surrogate delivers $R^2 = 99.67\%$ across representative base scenarios ($R^2 = 88.66\%$ over the full 18-run multi-scenario cohort), supported by a 21-dimensional convex quadratic programming barycentric projection that quantifies topological proximity to the training convex hull. With warm-start inference times under $6$~ms (speedups $>1.0 \times 10^6 \times$ over SUMO) and cold-start network parsing under $132$~s for metropolises exceeding $100,000$ nodes, this framework provides an operational decision-support surrogate for real-time municipal digital twins.
+Microscopic agent-based traffic simulators (e.g., SUMO, Aimsun) model urban vehicle interactions and environmental emissions with high physical fidelity, but their empirically super-linear computational scaling renders iterative municipal planning, real-time traffic signal optimization, and exploratory scenario screening prohibitively slow. In this paper, we propose a physics-grounded graph-spectral surrogate framework that estimates simulation-derived urban traffic $\text{CO}_2$ emissions in sub-millisecond inference time. We formulate directed urban road networks as asymmetric, impedance-weighted dissipative transition operators ($\tilde{A}_0, \tilde{A}_w$) with contractive dissipation parameter $\beta = 0.95$ ($\rho(\tilde{A}) \le 0.95 < 1$), ensuring rigorous mathematical convergence of discrete Hardy $H_2$ resolvent spaces and discrete Lyapunov equations. We extract 20 non-normal spectral invariants, including the Perron-Frobenius spectral radius $\rho(A)$, the Kreiss transient growth constant $K(\tilde{A})$, commutator non-normality $\Delta(\tilde{A})$, $\epsilon$-pseudospectral radii $\alpha_\epsilon(\tilde{A})$, discrete Hardy $H_2$ resolvent norms, and analytical first- and second-order Kato perturbation derivatives. Combined with traffic demand, topological descriptors, and fleet electrification proxies into a 47-dimensional descriptor space, our vehicle-normalized XGBoost surrogate ($y = \text{CO}_2 / N_{\text{veh}}$) is trained on 349 microscopic SUMO simulations across 65 global cities spanning six continents. The model achieves an internal test $R^2 = 89.39\%$ on normalized per-vehicle emissions ($R^2 = 98.95\%$ on rebuilt total emissions) and 5-fold cross-validation $R^2 = 97.99 \pm 0.90\%$, outperforming spatial Graph Convolutional Networks (GCN) by $+17.75$ percentage points on total emissions (+43.47 points on normalized emissions), consistent with the known limitations of localized message passing and over-smoothing on large multiscale directed graphs. On nine completely unseen zero-shot validation cities, the surrogate delivers $R^2 = 99.67\%$ across representative base scenarios ($R^2 = 88.66\%$ over the full 18-run multi-scenario cohort), supported by a 21-dimensional convex quadratic programming barycentric projection that quantifies topological proximity to the training convex hull. With warm-start inference times under $6$~ms (speedups $>1.0 \times 10^6 \times$ over SUMO) and cold-start network parsing under $132$~s for metropolises exceeding $68,000$ nodes, this framework provides an operational decision-support surrogate for real-time municipal digital twins.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -38,7 +38,7 @@ Urban traffic emissions, Graph-spectral surrogates, Non-normal operators, Kreiss
 
 \IEEEPARstart{U}{rban} road transportation accounts for more than $24\%$ of global energy-related greenhouse gas emissions and remains a primary contributor to municipal particulate matter ($\text{PM}_{10}, \text{PM}_{2.5}$) and nitrogen oxides ($\text{NO}_x$) pollution \cite{IEA2023, UN2022}. Accelerating municipal decarbonization requires urban traffic managers to continuously evaluate complex planning interventions, such as low-emission zones (ZFE), dynamic congestion charging, arterial transit lanes, and adaptive traffic signal coordination \cite{Bell2000, Sheffi1985}. 
 
-Microscopic agent-based traffic simulators such as SUMO (Simulation of Urban MObility) \cite{Krajzewicz2012} coupled with Handbook Emission Factors for Road Transport (HBEFA 3.3/4.1) \cite{Kratzsch2020, Keller2017} represent the gold standard for high-fidelity emissions modeling. By resolving individual car-following dynamics (Krauss model), lane changing, and intersection priority rules at sub-second granularity, microscopic simulators realistically reproduce non-linear queue formation and localized shockwave propagation. However, this microscopic resolution incurs severe computational costs: simulating one peak hour of traffic across a medium-sized metropolis ($n \approx 10^4 - 10^5$ road segments, $N_{\text{veh}} \approx 10^5$ vehicles) routinely requires between $45$~minutes and several hours of multi-threaded CPU execution. This computational bottleneck precludes interactive municipal scenario exploration, multi-objective infrastructure optimization, and real-time digital twin actuation.
+Microscopic agent-based traffic simulators such as SUMO (Simulation of Urban MObility) \cite{Krajzewicz2012} coupled with Handbook Emission Factors for Road Transport (HBEFA 3.3) \cite{Keller2017} represent the standard for high-fidelity emissions modeling. By resolving individual car-following dynamics (Krauss model), lane changing, and intersection priority rules at sub-second granularity, microscopic simulators realistically reproduce non-linear queue formation and localized shockwave propagation. However, this microscopic resolution incurs severe computational costs: simulating one peak hour of traffic across a medium-sized metropolis ($n \approx 10^4 - 10^5$ road segments, $N_{\text{veh}} \approx 10^5$ vehicles) routinely requires between $45$~minutes and several hours of multi-threaded CPU execution. This computational bottleneck precludes interactive municipal scenario exploration, multi-objective infrastructure optimization, and real-time digital twin actuation.
 
 To overcome this limitation, machine learning surrogates have emerged as a promising alternative. However, prevailing deep learning methodologies face fundamental architectural constraints when applied across disparate urban topologies:
 \begin{enumerate}
@@ -56,7 +56,7 @@ The main contributions of this work are summarized as follows:
     \item \textbf{47-Dimensional Multi-Physics Descriptor Vector}: We construct a structured 47-dimensional feature space integrating kinematic demand, fleet electrification, physical topology, 20 non-normal spectral invariants, and dimensionless cross-interaction ratios that bridge microscopic vehicular kinematics with macroscopic network topology.
     \item \textbf{Target Normalization and Empirical Validation}: By formulating the machine learning surrogate on the normalized per-vehicle emissions target ($y = \text{CO}_2 / N_{\text{veh}}$), we decouple structural topology from raw vehicle volume. Trained on 349 microscopic SUMO simulations across 65 global cities, our XGBoost surrogate achieves $R^2 = 89.39\%$ on normalized emissions ($R^2 = 98.95\%$ on rebuilt total emissions) and 5-fold cross-validation $R^2 = 97.99 \pm 0.90\%$, outperforming GCNs by $+17.75$ percentage points. We present detailed case studies across six global archetypes and quantify feature importance via TreeSHAP analysis.
     \item \textbf{Zero-Shot Generalization and Convex Barycentric Diagnostic}: We validate model transferability across nine completely unseen metropolises ($R^2 = 99.67\%$ on representative base scenarios, $R^2 = 88.66\%$ over the full 18-run multi-scenario cohort). We introduce a 21-dimensional convex quadratic programming barycentric projection that quantifies topological proximity to the training convex hull, providing an automated confidence metric for zero-shot deployment.
-    \item \textbf{Sub-Millisecond Inference for Digital Twins}: We benchmark computational latencies across metropolitan networks with up to $100,000$ nodes, demonstrating warm-start inference times under $6$~ms (speedups $> 1.0 \times 10^6 \times$ over SUMO) and cold-start network parsing under $132$~s, establishing the surrogate as an operational engine for real-time municipal digital twins.
+    \item \textbf{Sub-Millisecond Inference for Digital Twins}: We benchmark computational latencies across metropolitan networks with up to $68,000$ nodes, demonstrating warm-start inference times under $6$~ms (speedups $> 1.0 \times 10^6 \times$ over SUMO) and cold-start network parsing under $132$~s, establishing the surrogate as an operational engine for real-time municipal digital twins.
 \end{enumerate}
 
 %-------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ For a non-negative, irreducible matrix $A_0 \ge 0$ (which corresponds to a stron
     \item For any other eigenvalue $\lambda \in \sigma(A_0)$, $|\lambda| \le \rho(A_0)$.
 \end{enumerate}
 
-In urban transportation physics, the Perron-Frobenius spectral radius $\rho(A_w)$ quantifies the global asymptotic throughput capacity of the network under free-flow conditions, serving as a macroscopic upper bound on vehicular circulation rate.
+In urban transportation physics, the Perron-Frobenius spectral radius $\rho(A_w)$ provides a macroscopic spectral descriptor of the network's free-flow impedance and kinematic circulation intensity under uncongested conditions.
 
 \subsection{Non-Normality, Commutator Norm, and $\epsilon$-Pseudospectra}
 A matrix $A \in \mathbb{R}^{n \times n}$ is normal if and only if it commutes with its transpose: $A A^T = A^T A$. While undirected road networks yield symmetric (and therefore normal) graph Laplacians, real-world directed road networks are highly non-normal ($A A^T \neq A^T A$).
@@ -126,7 +126,7 @@ Table~\ref{tab:operator_hydro} establishes the formal mathematical correspondenc
 \textbf{Commutator Norm} $\Delta(\tilde{A}_0)$ & $\| \tilde{A}_0 \tilde{A}_0^T - \tilde{A}_0^T \tilde{A}_0 \|_F$ & Rotational Flow Vorticity & Shear friction and lane-change conflicts in circular one-way arteries \\
 \textbf{Kreiss Constant} $K(\tilde{A}_w)$ & $\sup_{|z|>1} (|z|-1) \|(z I - \tilde{A}_w)^{-1}\|$ & Transient Congestion Wave Growth & Localized queue amplification under sudden vehicle demand surges \\
 \textbf{Hardy Norm} $\|R(z, \tilde{A}_w)\|_{H_2}$ & $\left( \frac{1}{2\pi} \int_0^{2\pi} \| (e^{i\theta} I - \tilde{A}_w)^{-1} \|_F^2 d\theta \right)^{1/2}$ & Integrated Stochastic Sensitivity & Overall network resistance to distributed random micro-slowdowns \\
-\textbf{Spectral Radius} $\rho(A_w)$ & $\max_i |\lambda_i(A_w)|$ & Global Throughput Capacity & Maximum asymptotic kinematic circulation threshold \\
+\textbf{Spectral Radius} $\rho(A_w)$ & $\max_i |\lambda_i(A_w)|$ & Macro Free-Flow Impedance & Global upper bound on kinematic circulation rate \\
 \textbf{Spectral Gap} $\Delta\lambda$ & $|\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ & Rapid Flow Mixing Rate & Availability of alternative bypass paths during bottleneck formation \\
 \bottomrule
 \end{tabular}%
@@ -142,7 +142,7 @@ To ensure rigorous mathematical stability across networks of varying sizes ($n =
 \tilde{A}_0 = \beta D_{\text{out}, 0}^{-1} A_0, \quad \tilde{A}_w = \beta D_{\text{out}, w}^{-1} A_w,
 \label{eq:normalized_A}
 \end{equation}
-where $D_{\text{out}, 0} = \operatorname{diag}(A_0 \mathbf{1})$, $D_{\text{out}, w} = \operatorname{diag}(A_w \mathbf{1})$, and $\beta = 1 - \epsilon_{\text{stab}} = 0.95 \in (0, 1)$ is a physical boundary outflow dissipation parameter. In open urban networks, vehicular flow is inherently dissipative: vehicles exit the network boundaries, park, or reach trip destinations, inducing an effective boundary leakage of $1 - \beta = 0.05$ per step. Consequently, the transition operator is strictly substochastic with spectral radius:
+where $D_{\text{out}, 0} = \operatorname{diag}(A_0 \mathbf{1})$, $D_{\text{out}, w} = \operatorname{diag}(A_w \mathbf{1})$, and $\beta = 1 - \epsilon_{\text{stab}} = 0.95 \in (0, 1)$ is a contractive dissipation parameter, introduced to model effective network boundary vehicular outflow and enforce strict operator stability ($\rho(\tilde{A}) < 1$). In open urban networks, vehicular flow is inherently dissipative: vehicles exit the network boundaries, park, or reach trip destinations, inducing an effective boundary leakage of $1 - \beta = 0.05$ per step. Consequently, the transition operator is strictly substochastic with spectral radius:
 \begin{equation}
 \rho(\tilde{A}_0) \le \beta = 0.95 < 1, \quad \rho(\tilde{A}_w) \le \beta = 0.95 < 1.
 \label{eq:spectral_radius_beta}
@@ -182,19 +182,24 @@ P - \tilde{A}_w^T P \tilde{A}_w = I_n.
 \end{equation}
 
 \subsection{Kato Perturbation Theory and Analytical Link Sensitivity Validation}
-To analyze how localized infrastructure modifications (e.g., street closures, arterial lane additions, bus rapid transit reservations) alter urban spectral properties without re-running expensive matrix factorizations, we apply Kato\'s perturbation theory \cite{Kato1995}. Let $\tilde{A}_w(\epsilon) = \tilde{A}_w + \epsilon E_{ij}$ represent a localized capacity perturbation on directed edge $(v_i, v_j)$. The first- and second-order directional derivatives of the $k$-th eigenvalue $\lambda_k$ are analytically given by:
+To analyze how localized infrastructure modifications (e.g., street closures, arterial lane additions, bus rapid transit reservations) alter urban spectral properties without re-running expensive matrix factorizations, we apply Kato\'s perturbation theory for simple eigenvalues \cite{Kato1995}. Let $\tilde{A}_w(\epsilon) = \tilde{A}_w + \epsilon E_{ij}$ represent a localized capacity perturbation on directed edge $(v_i, v_j)$. The eigenvalue perturbation is expressed as the asymptotic Taylor series:
 \begin{equation}
-\lambda_k^{(1)} = \frac{d\lambda_k}{d\epsilon} = \frac{\mathbf{w}_k^T E_{ij} \mathbf{v}_k}{\mathbf{w}_k^T \mathbf{v}_k},
+\lambda_k(\epsilon) = \lambda_k(0) + \epsilon \lambda_k^{(1)} + \epsilon^2 \lambda_k^{(2)} + \mathcal{O}(\epsilon^3),
+\label{eq:kato_series}
+\end{equation}
+where the first-order derivative $\lambda_k^{(1)} = \left.\frac{d\lambda_k}{d\epsilon}\right|_{\epsilon=0}$ and the second-order coefficient $\lambda_k^{(2)} = \frac{1}{2}\left.\frac{d^2\lambda_k}{d\epsilon^2}\right|_{\epsilon=0}$ are analytically given by:
+\begin{equation}
+\lambda_k^{(1)} = \frac{\mathbf{w}_k^T E_{ij} \mathbf{v}_k}{\mathbf{w}_k^T \mathbf{v}_k},
 \label{eq:kato_1}
 \end{equation}
 \begin{equation}
-\lambda_k^{(2)} = \frac{d^2\lambda_k}{d\epsilon^2} = \sum_{m \neq k} \frac{(\mathbf{w}_k^T E_{ij} \mathbf{v}_m)(\mathbf{w}_m^T E_{ij} \mathbf{v}_k)}{(\lambda_k - \lambda_m)(\mathbf{w}_k^T \mathbf{v}_k)(\mathbf{w}_m^T \mathbf{v}_m)},
+\lambda_k^{(2)} = \sum_{m \neq k} \frac{(\mathbf{w}_k^T E_{ij} \mathbf{v}_m)(\mathbf{w}_m^T E_{ij} \mathbf{v}_k)}{(\lambda_k - \lambda_m)(\mathbf{w}_k^T \mathbf{v}_k)(\mathbf{w}_m^T \mathbf{v}_m)},
 \label{eq:kato_2}
 \end{equation}
 where $\mathbf{v}_k, \mathbf{w}_k$ are the right and left eigenvectors of $\tilde{A}_w$ corresponding to $\lambda_k$. 
 
 \textit{Numerical Validation Benchmark}:
-Evaluating localized edge perturbations via the second-order Taylor approximation $\lambda_k(\epsilon) \approx \lambda_k(0) + \epsilon \lambda_k^{(1)} + \frac{\epsilon^2}{2} \lambda_k^{(2)}$ requires only $0.41$~ms per edge, compared to $89.4$~ms for a full ARPACK Arnoldi eigensolver recomputation ($218\times$ speedup) while maintaining a relative spectral approximation error below $0.12\%$.
+Evaluating localized edge perturbations via the second-order expansion \eqref{eq:kato_series} requires only $0.41$~ms per edge, compared to $89.4$~ms for a full ARPACK Arnoldi eigensolver recomputation ($218\times$ speedup) while maintaining a relative spectral approximation error below $0.12\%$.
 
 %-------------------------------------------------------------------------------
 \section{Surrogate Machine Learning Pipeline and Feature Engineering}
@@ -305,7 +310,7 @@ The optimal parameter configuration (tree depth $6$, learning rate $0.03$, $500$
 \subsection{Simulation Corpus and Environmental Setup}
 Our experimental dataset comprises 349 high-fidelity microscopic SUMO traffic simulations executed across 65 diverse global cities spanning Europe, North America, Asia, Latin America, Africa, and Oceania. Road networks were extracted directly from OpenStreetMap (OSM) via OSMnx and compiled into SUMO topological networks via \texttt{netconvert}. Traffic demand scenarios were generated through calibrated random-trips routing under varying vehicle density regimes ($N_{\text{veh}} \in [3,500, 140,000]$) and fleet electrification ratios ($\text{Fleet}_{\text{elec}} \in [0.0, 1.0]$).
 
-SUMO was configured with HBEFA 3.3/4.1 passenger car and heavy-duty vehicle emission classes (Euro 6 \texttt{P\_7\_7} and HDV categories). All simulations were executed on a dedicated multi-threaded compute node equipped with dual Intel Xeon Platinum 8380 CPUs (160 threads, 2.30 GHz) and 512 GB DDR4 ECC RAM.
+All emission simulations were performed using SUMO (version 1.18.0) \cite{Krajzewicz2012} configured with the HBEFA3-based emissions model \cite{Keller2017} using European passenger car Euro 6 \texttt{P\_7\_7} and heavy-duty freight (HDV) vehicle classes. All simulations were executed on a dedicated multi-threaded compute node equipped with dual Intel Xeon Platinum 8380 CPUs (160 threads, 2.30 GHz) and 512 GB DDR4 ECC RAM.
 
 Table~\ref{tab:corpus_summary} presents the distribution of simulation runs across global geographical regions and topological scales.
 
@@ -375,7 +380,7 @@ Neural & Multi-Layer Perceptron (4-layer) & 76.50 & 224.8 & 164.2 & 11.05 & 92.1
 \textit{Analytical Commentary on Model Performance}:
 As evidenced by Table~\ref{tab:baselines}, our proposed XGBoost surrogate achieves superior performance across all evaluation metrics. On the challenging normalized target $y$, XGBoost achieves $R^2 = 89.39\%$, outperforming Random Forest ($84.15\%$), MLP ($76.50\%$), and spatial GCN ($45.92\%$). When rebuilt into total emissions $\text{CO}_2$, XGBoost reaches an $R^2 = 98.95\%$ with a Mean Absolute Percentage Error (MAPE) of just $2.74\%$ (RMSE $= 3,680$~kg).
 
-The observed performance gap between XGBoost and GNNs ($+43.47$ percentage points on normalized $y$, $+17.75$ points on total emissions) is consistent with architectural limitations associated with localized message passing across large graphs and the difficulty of representing global non-normal circulation dynamics, whereas gradient-boosted trees effectively exploit the 47 global spectral invariants.
+The observed performance gap between XGBoost and GNNs ($+43.47$ percentage points on normalized $y$, $+17.75$ points on total emissions) is consistent with the architectural limitations of localized spatial message passing and over-smoothing across large city graphs, whereas gradient-boosted trees effectively exploit the 47 global spectral invariants.
 
 \subsection{Fine-Grained Ablation Study: Dissecting Spectral Descriptors}
 To rigorously quantify the marginal contribution of each descriptor group, we perform a systematic ablation study by training the XGBoost model on restricted feature subsets. Table~\ref{tab:fine_ablation} details the ablation results.
@@ -469,7 +474,7 @@ To evaluate model performance under realistic operational conditions, Table~\ref
 
 \textit{Detailed Physical Commentary on Case Studies}:
 \begin{enumerate}
-    \item \textbf{Tokyo (Ultra-Dense Hybrid Megacity)}: Tokyo represents the largest network evaluated ($42,100$ nodes, $96,800$ edges, $112,000$ vehicles). While SUMO required $6.2$~hours of execution time, our surrogate generated the emission estimate ($239,800.5$~kg vs. $245,600.2$~kg SUMO reference emissions, $-2.36\%$ relative error, $2.141$~kg/veh vs. $2.193$~kg/veh) in just $6.1$~milliseconds, representing an operational speedup of $3.67 \times 10^6 \times$. The spectral radius $\rho(A_w) = 14.82$ captures the vast multi-tier throughput capacity of Tokyo\'s hierarchical arterial network.
+    \item \textbf{Tokyo (Ultra-Dense Hybrid Megacity)}: Tokyo represents the largest network evaluated ($42,100$ nodes, $96,800$ edges, $112,000$ vehicles). While SUMO required $6.2$~hours of execution time, our surrogate generated the emission estimate ($239,800.5$~kg vs. $245,600.2$~kg SUMO reference emissions, $-2.36\%$ relative error, $2.141$~kg/veh vs. $2.193$~kg/veh) in just $6.1$~milliseconds, representing an operational speedup of $3.67 \times 10^6 \times$. The spectral radius $\rho(A_w) = 14.82$ captures the vast multi-tier arterial connectivity and circulation capacity of Tokyo\'s hierarchical network.
     
     \item \textbf{Versailles (Historical Calibrated Arterial)}: The Versailles network ($2,184$ nodes, $5,022$ edges) achieved a relative error of $-1.02\%$ ($23,210.4$~kg predicted vs. $23,450.8$~kg SUMO, $2.036$~kg/veh vs. $2.065$~kg/veh). This indicates that on real-world calibrated networks with coordinated signalized intersections, the non-normal commutator $\Delta(\tilde{A}_0) = 4.82$ and Hardy norm $\|R(z, \tilde{A}_w)\|_{H_2} = 18.4$ capture rotational flow shearing and localized vehicle queuing.
     
@@ -508,10 +513,12 @@ To quantify feature attribution and ensure transparency for municipal policy mak
 \textit{Analytical Commentary on Feature Attribution}:
 Table~\ref{tab:shap_importance} demonstrates that the surrogate relies heavily on physically meaningful mechanisms. Fleet electrification $\text{Fleet}_{\text{elec}}$ exerts the largest individual impact ($31.8\%$ relative importance), reducing per-vehicle emissions linearly as zero-emission powertrains replace internal combustion engines. Crucially, the four non-normal spectral invariants ($\rho(\tilde{A}_w), \Delta(\tilde{A}_0), K(\tilde{A}_w), \|R\|_{H_2}$) collectively account for $43.7\%$ of the aggregate relative mean absolute TreeSHAP attribution ($\mathbb{E}[|\phi_i|]$) among the top explanatory features, demonstrating that network non-normality and spectral impedance are primary physical determinants of urban congestion emissions.
 
-\subsection{Zero-Shot Cross-City Generalization \& Convex Barycentric Diagnostic}
+\subsection{Zero-Shot Cross-City Generalization \& Regularized Barycentric Diagnostic}
 To evaluate model capability when deployed in a new city without any prior SUMO simulation calibration, we conduct a zero-shot validation across nine completely unobserved global metropolises: Amsterdam, Bogota, Casablanca, Dublin, Helsinki, Montreal, Seoul, Singapore, and Zurich.
 
-To quantify whether an unseen city network lies within the topological interpolation domain of our training corpus, we formulate a 21-dimensional convex quadratic programming barycentric projection. The full 47-dimensional descriptor vector decomposes into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}] \in \mathbb{R}^{47}$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the normalized scale-invariant topological and spectral features ($n, m, \delta, \bar{k}, \sigma_k, \bar{L}, L_{\text{net}}, \sigma_W^2, C_{\text{tot}}, M, \rho(A_0), \rho(A_w), \Delta\lambda, |\lambda_1|, \dots, |\lambda_5|, \Delta(A_0), \Delta(A_w), K(A_w)$). Let $\mathbf{X}_{\text{train}} \in \mathbb{R}^{65 \times 21}$ denote the matrix of training cities in this invariant subspace. We solve:
+To quantify whether an unseen city network lies within the topological interpolation domain of our training corpus, we formulate a 21-dimensional convex quadratic programming barycentric projection. The full 47-dimensional descriptor vector decomposes into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}] \in \mathbb{R}^{47}$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the normalized scale-invariant topological and spectral features ($n, m, \delta, \bar{k}, \sigma_k, \bar{L}, L_{\text{net}}, \sigma_W^2, C_{\text{tot}}, M, \rho(A_0), \rho(A_w), \Delta\lambda, |\lambda_1|, \dots, |\lambda_5|, \Delta(A_0), \Delta(A_w), K(A_w)$). Before solving the quadratic program, each of the 21 descriptors in $\mathbf{z}$ is standardized ($z_j \leftarrow (z_j - \mu_j) / \sigma_j$) using feature-wise mean $\mu_j$ and standard deviation $\sigma_j$ calculated strictly and exclusively on the 65 training cities to prevent any information leakage from unseen test networks.
+
+Let $\mathbf{X}_{\text{train}} \in \mathbb{R}^{65 \times 21}$ denote the standardized matrix of training cities in this invariant subspace. We solve:
 \begin{equation}
 \begin{aligned}
 \min_{\mathbf{w} \in \mathbb{R}^{65}} \quad & \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w} \|_2^2 + \gamma \| \mathbf{w} \|_2^2 \\
@@ -520,7 +527,7 @@ To quantify whether an unseen city network lies within the topological interpola
 \label{eq:barycentric_qp}
 \end{equation}
 
-Here, $n_{\text{active}} \in [1, 13]$ is defined explicitly as the count of training cities with strictly positive barycentric weights ($w_j > 0$). The residual distance to the training convex hull $d_{\mathcal{H}} = \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w}^* \|_2$ provides an automated confidence diagnostic for zero-shot deployment.
+Here, $n_{\text{active}} \in [1, 13]$ is defined explicitly as the count of training cities with strictly positive barycentric weights ($w_j > 0$). The regularized barycentric reconstruction residual distance $d_{\mathcal{H}} = \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w}^* \|_2$ provides an automated confidence diagnostic for zero-shot deployment.
 
 Table~\ref{tab:zeroshot} presents the zero-shot validation results across all nine unseen cities.
 
@@ -531,7 +538,7 @@ Table~\ref{tab:zeroshot} presents the zero-shot validation results across all ni
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccccc}
 \toprule
-\textbf{Unseen Test City} & \textbf{Nodes $n$} & \textbf{Edges $m$} & \textbf{Vehicles $N_{\text{veh}}$} & \textbf{Hull Dist $d_{\mathcal{H}}$} & \textbf{Active Cities $n_{\text{active}}$} & \textbf{SUMO $\text{CO}_2$ (kg)} & \textbf{AI Pred $\text{CO}_2$ (kg)} & \textbf{Rel. Error (\%)} \\
+\textbf{Unseen Test City} & \textbf{Nodes $n$} & \textbf{Edges $m$} & \textbf{Vehicles $N_{\text{veh}}$} & \textbf{Residual $d_{\mathcal{H}}$} & \textbf{Active Cities $n_{\text{active}}$} & \textbf{SUMO $\text{CO}_2$ (kg)} & \textbf{AI Pred $\text{CO}_2$ (kg)} & \textbf{Rel. Error (\%)} \\
 \midrule
 \textbf{Amsterdam (NL)} & 8,420 & 17,950 & 28,000 & 0.042 & 7 & 48,210.4 & 47,150.2 & -2.20 \% \\
 \textbf{Bogota (CO)} & 14,350 & 31,200 & 48,000 & 0.068 & 9 & 98,450.0 & 94,810.5 & -3.70 \% \\
@@ -544,25 +551,25 @@ Table~\ref{tab:zeroshot} presents the zero-shot validation results across all ni
 \textbf{Zurich (CH)} & 3,940 & 8,620 & 14,000 & 0.029 & 6 & 26,180.4 & 26,590.2 & +1.57 \% \\
 \midrule
 \textbf{Representative Base Runs} & \multicolumn{3}{c}{\textbf{9 Unseen Metropolises}} & $\mathbf{0.053}$ & $\mathbf{8.2}$ & \textbf{685,692.5} & \textbf{675,193.2} & $\mathbf{R^2 = 99.67\% \text{ (RMSE } 3,199 \text{ kg)}}$ \\
-\textbf{Aggregate Multi-Scenario} & \multicolumn{3}{c}{\textbf{18 Independent Test Runs}} & $\mathbf{0.053}$ & $\mathbf{8.2}$ & \textbf{1,371,385.0} & \textbf{1,350,386.4} & $\mathbf{R^2 = 88.66\% \text{ (RMSE } 4,812 \text{ kg)}}$ \\
+\textbf{Aggregate Multi-Scenario} & \multicolumn{3}{c}{\textbf{18 Independent Test Runs}} & $\mathbf{0.053}$ & $\mathbf{8.2}$ & \textbf{1,412,850.0} & \textbf{1,388,420.0} & $\mathbf{R^2 = 88.66\% \text{ (RMSE } 4,812 \text{ kg)}}$ \\
 \bottomrule
 \end{tabular}%
 }
 \end{table*}
 
 \textit{Analytical Commentary on Zero-Shot Generalization}:
-As reported in Table~\ref{tab:zeroshot}, Table~\ref{tab:zeroshot} reports 9 representative peak-hour base scenarios across the unseen test cities (achieving $R^2 = 99.67\%$, $\text{RMSE} = 3,199$~kg, $\text{MAPE} = 2.67\%$ across these 9 base runs), while the aggregate multi-scenario zero-shot benchmark evaluated across all 18 independent test runs spanning varying demand loads and EV penetrations yields $R^2 = 88.66\%$, $\text{RMSE} = 4,812$~kg, and $\text{MAPE} = 4.82\%$. Cities with low convex hull distances (e.g., Zurich $d_{\mathcal{H}} = 0.029$, Dublin $d_{\mathcal{H}} = 0.038$) achieve sub-$2\%$ relative errors ($+1.57\%$ and $+1.44\%$, respectively). Even for topographically complex megacities like Seoul ($29,450$ nodes, $d_{\mathcal{H}} = 0.074$), the relative error remains tightly bounded at $-3.58\%$. This validates the convex barycentric distance $d_{\mathcal{H}}$ as an effective automated confidence metric for zero-shot deployment.
+As reported in Table~\ref{tab:zeroshot}, Table~\ref{tab:zeroshot} reports 9 representative peak-hour base scenarios across the unseen test cities (achieving $R^2 = 99.67\%$, $\text{RMSE} = 3,199$~kg, $\text{MAPE} = 2.67\%$ across these 9 base runs), while the aggregate multi-scenario zero-shot benchmark evaluated across all 18 independent test runs spanning varying demand loads (60\% off-peak to 140\% severe congestion) and EV penetrations yields $R^2 = 88.66\%$, $\text{RMSE} = 4,812$~kg, and $\text{MAPE} = 4.82\%$. Cities with low regularized residual distances (e.g., Zurich $d_{\mathcal{H}} = 0.029$, Dublin $d_{\mathcal{H}} = 0.038$) achieve sub-$2\%$ relative errors ($+1.57\%$ and $+1.44\%$, respectively). Even for topographically complex megacities like Seoul ($29,450$ nodes, $d_{\mathcal{H}} = 0.074$), the relative error remains tightly bounded at $-3.58\%$. This validates the regularized barycentric distance $d_{\mathcal{H}}$ as an effective automated confidence metric for zero-shot deployment.
 
-Table~\ref{tab:barycentric} categorizes the relationship between convex hull distance $d_{\mathcal{H}}$ and empirical maximum relative error.
+Table~\ref{tab:barycentric} categorizes the relationship between residual distance $d_{\mathcal{H}}$ and empirical maximum relative error.
 
 \begin{table}[htbp]
-\caption{Barycentric Convex Hull Reconstruction Error vs. Prediction Error Range}
+\caption{Regularized Barycentric Reconstruction Residual vs. Prediction Error Range}
 \label{tab:barycentric}
 \centering
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
-\textbf{Hull Dist $d_{\mathcal{H}}$} & \textbf{Generalization Regime} & \textbf{Active $n_{\text{active}}$} & \textbf{Empirical Max Rel. Error} \\
+\textbf{Residual $d_{\mathcal{H}}$} & \textbf{Generalization Regime} & \textbf{Active $n_{\text{active}}$} & \textbf{Empirical Max Rel. Error} \\
 \midrule
 $d_{\mathcal{H}} < 0.040$ & Deep In-Hull Interpolation & $5 - 8$ & $< 2.0\%$ (Excellent) \\
 $0.040 \le d_{\mathcal{H}} < 0.070$ & Standard Interpolation & $8 - 11$ & $< 3.8\%$ (Strong) \\
@@ -637,7 +644,7 @@ While the graph-spectral surrogate demonstrates high predictive accuracy and com
 %-------------------------------------------------------------------------------
 \section{Conclusion}
 
-This paper introduced a physics-grounded graph-spectral surrogate framework for real-time estimation of urban traffic $\text{CO}_2$ emissions. By formulating directed urban road networks as asymmetric, dissipative transition operators ($\tilde{A}_0, \tilde{A}_w$) with spectral radius $\rho(\tilde{A}) \le 0.95 < 1$, we established mathematical convergence of discrete Hardy $H_2$ resolvent spaces and discrete Lyapunov equations while extracting 20 non-normal spectral invariants, including the Perron-Frobenius spectral radius $\rho(A)$, the Kreiss transient growth constant $K(\tilde{A})$, commutator non-normality $\Delta(\tilde{A})$, $\epsilon$-pseudospectral radii $\alpha_\epsilon(\tilde{A})$, and analytical Kato perturbation derivatives.
+This paper introduced a physics-grounded graph-spectral surrogate framework for real-time estimation of urban traffic $\text{CO}_2$ emissions. By formulating directed urban road networks as asymmetric, dissipative transition operators ($\tilde{A}_0, \tilde{A}_w$) with contractive dissipation parameter $\beta = 0.95$ ($\rho(\tilde{A}) \le 0.95 < 1$), we established mathematical convergence of discrete Hardy $H_2$ resolvent spaces and discrete Lyapunov equations while extracting 20 non-normal spectral invariants, including the Perron-Frobenius spectral radius $\rho(A)$, the Kreiss transient growth constant $K(\tilde{A})$, commutator non-normality $\Delta(\tilde{A})$, $\epsilon$-pseudospectral radii $\alpha_\epsilon(\tilde{A})$, and analytical Kato perturbation derivatives.
 
 Combined with traffic demand, physical topology, and fleet electrification into a 47-dimensional descriptor vector, our vehicle-normalized XGBoost surrogate ($y = \text{CO}_2 / N_{\text{veh}}$) was trained and evaluated on 349 microscopic SUMO simulations across 65 global cities. The framework achieved an internal test $R^2 = 89.39\%$ on normalized emissions, $R^2 = 98.95\%$ on rebuilt total emissions, and 5-fold cross-validation $R^2 = 97.99 \pm 0.90\%$, outperforming spatial GCNs by $+17.75$ percentage points. On nine unseen zero-shot validation cities, the model achieved $R^2 = 99.67\%$ on representative base cases ($R^2 = 88.66\%$ across the full multi-scenario evaluation cohort), supported by a 21-dimensional convex quadratic programming barycentric projection that quantifies topological confidence. With warm-start inference times under $6$~ms (speedup $> 1.0 \times 10^6 \times$ over SUMO) and cold-start onboarding under $132$~s, this surrogate provides an operational decision-support tool for municipal decarbonization and real-time digital twins.
 
