@@ -49,7 +49,6 @@ To overcome this limitation, machine learning surrogates have emerged as a promi
 
 To overcome these fundamental limitations, this paper introduces a physics-grounded topological graph-spectral surrogate framework. By representing urban road networks as asymmetric non-normal transition operators and extracting their non-modal spectral signatures, our framework maps macro-topology, vehicle demand, and powertrain fleet mix to micro-simulation emissions in sub-millisecond inference time.
 
-\subsection{Key Contributions}
 The main contributions of this work are summarized as follows:
 \begin{enumerate}
     \item \textbf{Non-Normal Matrix Operator Formulation \& Dissipative Stability}: We formulate directed urban road networks as asymmetric, impedance-weighted transition operators ($\tilde{A}_0, \tilde{A}_w$) with an explicit boundary outflow dissipation parameter ($\beta = 0.95$), ensuring $\rho(\tilde{A}) < 1$. This rigorously guarantees the mathematical convergence of discrete Hardy $H_2$ resolvent norms and discrete Lyapunov equations while capturing convective flow vorticity ($\Delta(\tilde{A})$), transient shockwave amplification ($K(\tilde{A})$), $\epsilon$-pseudospectral radii ($\alpha_\epsilon(\tilde{A})$), and analytical first- and second-order Kato perturbation derivatives ($\lambda^{(1)}, \lambda^{(2)}$).
@@ -220,24 +219,25 @@ Evaluating localized edge perturbations via the second-order expansion \eqref{eq
 To capture the multi-physics coupling between network topology, non-normal operator spectrum, traffic demand, and fleet characteristics, we construct a 47-dimensional descriptor vector $\mathbf{x} \in \mathbb{R}^{47}$ structured into five functional families:
 
 \begin{enumerate}
-    \item \textbf{Kinematic Traffic Demand (4 Descriptors)}: Total simulated vehicle volume $N_{\text{veh}}$, mean vehicle dwell time $\bar{T}_{\text{sim}}$, total vehicle-kilometers traveled $L_{\text{tot}} = \sum_{k=1}^{N_{\text{veh}}} \int_0^{T_k} \|\mathbf{v}_k(t)\|_2 dt$ (where $\mathbf{v}_k(t) \in \mathbb{R}^2$ is the instantaneous vehicle velocity vector and $T_k$ is its total trip duration), and network-wide mean legal speed limit $\bar{v}_{\text{free}} = \frac{1}{m} \sum_{e \in E} v_{\text{free}, e}$.
+    \item \textbf{Kinematic Traffic Demand (4 Descriptors)}: Total simulated vehicle volume $N_{\text{veh}}$, mean vehicle dwell time $\bar{T}_{\text{sim}}$, total vehicle-kilometers traveled $L_{\text{tot}} = \sum_{k=1}^{N_{\text{veh}}} \int_0^{T_k} \|\mathbf{v}_k(t)\|_2 dt$ (where $\mathbf{v}_k(t) \in \mathbb{R}^2$ is the instantaneous velocity of vehicle $k$ and $T_k$ is its total trip duration), and network-wide mean legal speed limit $\bar{v}_{\text{free}} = \frac{1}{m} \sum_{e \in E} v_{\text{free}, e}$.
     \item \textbf{Fleet Powertrain and Fuel Mix (2 Descriptors)}: Fleet electrification ratio $\text{Fleet}_{\text{elec}} = N_{\text{EV}} / N_{\text{veh}} \in [0, 1]$ (zero-tailpipe emissions) and heavy-duty freight fraction $\text{Fleet}_{\text{HGV}} = N_{\text{HGV}} / N_{\text{veh}} \in [0, 1]$.
     \item \textbf{Physical Road Network Topology (10 Descriptors)}: (1) Intersection node count $n$, (2) directed road segment count $m$, (3) network density $\delta = m / (n(n-1))$, (4) mean node degree $\bar{k}$, (5) degree standard deviation $\sigma_k$, (6) mean edge length $\bar{L}$, (7) total network length $L_{\text{net}} = \sum_{ij} L_{ij}$, (8) speed limit variance across edges $\sigma_v^2 = \frac{1}{m} \sum_{e} (v_{\text{free}, e} - \bar{v}_{\text{free}})^2$, (9) total network lane storage capacity $C_{\text{tot}} = \sum_{ij} C_{ij}$, and (10) planar meshedness coefficient $M = (m - n + 1) / (2n - 5) \in [0, 1]$ (which quantifies cycle redundancy, ranging from $0$ for tree-like branching networks to $1$ for fully triangulated planar grids). In addition, route circuity $\chi = \frac{1}{|P|} \sum_{(u,v) \in P} \frac{d_{\text{net}}(u,v)}{d_{\text{euc}}(u,v)}$ (ratio of shortest network travel distance over Euclidean straight-line distance) is computed as a global geometric benchmark.
-    \item \textbf{Non-Normal Spectral Graph Invariants (20 Descriptors)}:
-    \begin{itemize}
-        \item Perron-Frobenius spectral radii $\rho(A_0)$ and $\rho(A_w)$ (2 features).
-        \item Spectral gap $\Delta\lambda = |\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ (1 feature).
-        \item Top 5 leading eigenvalue magnitudes $\{|\lambda_1(\tilde{A}_0)|, \dots, |\lambda_5(\tilde{A}_0)|\}$ (5 features).
-        \item Commutator non-normality $\Delta(\tilde{A}_0)$ and $\Delta(\tilde{A}_w)$ (2 features).
-        \item Kreiss transient growth constants $K(\tilde{A}_0)$ and $K(\tilde{A}_w)$ (2 features).
-        \item Discrete Hardy $H_2$ energy norms $\|R(\cdot, \tilde{A}_0)\|_{H_2}$ and $\|R(\cdot, \tilde{A}_w)\|_{H_2}$ (2 features).
-        \item Pseudospectral radii $\alpha_{0.01}(\tilde{A}_0)$ and $\alpha_{0.01}(\tilde{A}_w)$ for $\epsilon = 0.01$ (2 features).
-        \item First- and second-order Kato perturbation derivatives $\{\lambda_1^{(1)}, \lambda_2^{(1)}, \lambda_1^{(2)}, \lambda_2^{(2)}\}$ (4 features).
-    \end{itemize}
-    \item \textbf{Spectral-Traffic Cross-Interactions (11 Descriptors)}: Second-order multiplicative couplings capturing physics non-linearities: $\rho(A_w) \times N_{\text{veh}}$, $\Delta(\tilde{A}_0) \times N_{\text{veh}}$, $K(\tilde{A}_w) \times \bar{v}_{\text{free}}$, $\|R(\cdot, \tilde{A}_w)\|_{H_2} \times N_{\text{veh}}$, $\text{Fleet}_{\text{elec}} \times \rho(A_w)$, $\text{Fleet}_{\text{HGV}} \times \Delta(\tilde{A}_w)$, $C_{\text{tot}} \times K(\tilde{A}_w)$, $M \times \Delta\lambda$, $\delta \times \rho(A_0)$, $\alpha_{0.01}(\tilde{A}_w) \times N_{\text{veh}}$, and $\lambda_1^{(1)} \times N_{\text{veh}}$ (11 features).
+    \item \textbf{Non-Normal Graph-Spectral Invariants (20 Descriptors)}: 
+    \begin{enumerate}
+        \item Unweighted and weighted Perron-Frobenius spectral radii $\rho(A_0)$ and $\rho(A_w)$ from \eqref{eq:adjacency} (2 descriptors).
+        \item Spectral gap $\Delta\lambda = |\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$, where $\lambda_1, \lambda_2 \in \mathbb{C}$ are the top 2 leading eigenvalues of $\tilde{A}_0$ sorted by descending modulus (1 descriptor).
+        \item Top-5 leading eigenvalue moduli $|\lambda_1(\tilde{A}_w)|, \dots, |\lambda_5(\tilde{A}_w)|$ of the impedance-weighted transition matrix $\tilde{A}_w$ defined in \eqref{eq:normalized_A} (5 descriptors).
+        \item Commutator non-normality norms $\Delta(\tilde{A}_0)$ and $\Delta(\tilde{A}_w)$ from \eqref{eq:commutator} (2 descriptors).
+        \item Kreiss transient growth constants $K(\tilde{A}_0)$ and $K(\tilde{A}_w)$ from \eqref{eq:kreiss} (2 descriptors).
+        \item Discrete Hardy $H_2$ resolvent norms $\|R(\cdot, \tilde{A}_0)\|_{H_2}$ and $\|R(\cdot, \tilde{A}_w)\|_{H_2}$ from \eqref{eq:hardy_lyapunov} (2 descriptors).
+        \item $\epsilon$-pseudospectral radii $\alpha_{0.01}(\tilde{A}_0)$ and $\alpha_{0.01}(\tilde{A}_w)$ from \eqref{eq:pseudospectrum} with $\epsilon = 0.01$ (2 descriptors).
+        \item First- and second-order Kato perturbation derivatives $\lambda^{(1)}(A_0), \lambda^{(2)}(A_0), \lambda^{(1)}(A_w), \lambda^{(2)}(A_w)$ defined in \eqref{eq:kato_1}--\eqref{eq:kato_2} (4 descriptors).
+    \end{enumerate}
+    \item \textbf{Non-Linear Cross Interactions (11 Descriptors)}: Physically motivated cross-ratios capturing non-linear phase transitions: demand density $N_{\text{veh}} / L_{\text{net}}$, lane capacity saturation $N_{\text{veh}} / C_{\text{tot}}$, Spectral Shock Index $N_{\text{veh}} \cdot K(\tilde{A}_w) / C_{\text{tot}}$, Net ICE volume $N_{\text{veh}} \cdot (1 - \text{Fleet}_{\text{elec}})$, Non-Normal Shearing Load $N_{\text{veh}} \cdot \Delta(\tilde{A}_0) / n$, Kinetic Dissipation Index $\rho(A_w) \cdot \sigma_v / \bar{v}_{\text{free}}$, Transient Queue Load $N_{\text{veh}} \cdot K(\tilde{A}_w) / n$, Dynamic Dwell Shock $\bar{T}_{\text{sim}} \cdot \rho(A_w) / L_{\text{net}}$, Meshed Demand Capacity $M \cdot N_{\text{veh}} / C_{\text{tot}}$, Stochastic Resolvent Energy $\|R(\cdot, \tilde{A}_w)\|_{H_2} \cdot N_{\text{veh}} / L_{\text{net}}$, and Fleet Congestion Interaction $\text{Fleet}_{\text{HGV}} \cdot N_{\text{veh}} / C_{\text{tot}}$.
 \end{enumerate}
 
-The complete 47-dimensional feature vector $\mathbf{x} \in \mathbb{R}^{47}$ partitions naturally into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}]$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the $21$ scale-invariant intrinsic topological and spectral descriptors ($10$ topology + $11$ non-normal invariants) utilized for the barycentric domain diagnostic, $\mathbf{x}_{\text{demand}} \in \mathbb{R}^4$ captures dynamic traffic demand, $\mathbf{x}_{\text{fleet}} \in \mathbb{R}^2$ represents powertrain shares, and $\mathbf{x}_{\text{cross}} \in \mathbb{R}^{20}$ gathers the remaining spectral sensitivities and cross-terms ($21 + 4 + 2 + 20 = 47$).
+\textit{Analytical Commentary on Descriptor Synergy and Subvector Partition}:
+The 47 descriptors systematically bridge micro-kinematics and macro-topology ($4 + 2 + 10 + 20 + 11 = 47$). The full feature vector partitions naturally into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}] \in \mathbb{R}^{47}$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the $21$ scale-invariant intrinsic topological and spectral descriptors ($10$ topology + $11$ non-normal invariants) utilized for the barycentric domain diagnostic, $\mathbf{x}_{\text{demand}} \in \mathbb{R}^4$ captures dynamic traffic demand, $\mathbf{x}_{\text{fleet}} \in \mathbb{R}^2$ represents powertrain shares, and $\mathbf{x}_{\text{cross}} \in \mathbb{R}^{20}$ gathers the remaining spectral sensitivities and cross-terms ($21 + 4 + 2 + 20 = 47$).
 
 \subsection{Target Normalization and Scale Decoupling}
 In naive regression models targeting raw total carbon dioxide emissions $Y = \text{CO}_2$ (kg), the strong collinearity between vehicle volume and total fuel consumption ($r(N_{\text{veh}}, \text{CO}_2) = 0.9865$) causes optimization algorithms to allocate almost all split importance to $N_{\text{veh}}$. Consequently, topological and spectral features are suppressed as minor residuals, leading to catastrophic failure when transferring to cities with identical vehicle counts but radically different bottleneck topologies.
@@ -422,7 +422,7 @@ w/o Demand Descriptors ($N_{\text{veh}}, L_{\text{tot}}$) & 43 & 72.10 & 249.2 &
 Table~\ref{tab:fine_ablation} underscores three critical takeaways:
 \begin{enumerate}
     \item \textbf{Indispensability of Non-Normal Invariants}: Removing non-normal operators ($\Delta(\tilde{A}), K(\tilde{A}), \|R(\cdot,\tilde{A})\|_{H_2}, \alpha_\epsilon(\tilde{A})$) causes a severe $8.14$ percentage point drop in normalized $R^2$ ($89.39\% \to 81.25\%$) and doubles the total emission MAPE ($2.74\% \to 6.45\%$), indicating that asymmetric transient dynamics provide vital predictive information unavailable in symmetric graph metrics.
-    \item \textbf{Role of Target Normalization}: Training directly on unnormalized total $\text{CO}_2$ drops performance to $93.10\%$ ($+5.66$ percentage points higher MAPE), demonstrating that scale decoupling is essential for structural feature utilization.
+    \item \textbf{Role of Target Normalization}: Training directly on unnormalized total $\text{CO}_2$ drops the rebuilt total determination coefficient from $R^2 = 98.95\%$ to $R^2 = 93.10\%$ ($\Delta R^2 = -5.85$ percentage points, with $+5.66$ percentage points higher MAPE), demonstrating that scale decoupling is essential for structural feature utilization.
     \item \textbf{Ablation of Kato Derivatives}: Removing the 4 Kato perturbation descriptors drops the feature count from 47 to 43 and degrades normalized $R^2$ by $3.29$ percentage points, highlighting the value of analytical sensitivity derivatives.
 \end{enumerate}
 
@@ -655,7 +655,6 @@ While the graph-spectral surrogate demonstrates high predictive accuracy and com
     \item \textbf{Multi-Pollutant Co-Surrogate Modeling}: While this work focuses on $\text{CO}_2$ greenhouse gas emissions, extending the multi-physics spectral framework to predict localized nitrogen oxides ($\text{NO}_x$) and particulate matter ($\text{PM}_{10}, \text{PM}_{2.5}$) dispersion represents an ongoing research initiative.
 \end{enumerate}
 
-\clearpage
 %-------------------------------------------------------------------------------
 \section{Conclusion}
 

@@ -83,45 +83,34 @@ We define two fundamental matrices governing network structure and dynamic flow 
 \subsection{Perron-Frobenius Spectrum and Topological Asymmetry}
 Because urban road graphs contain one-way streets, dual carriageways with asymmetric intersection turn prohibitions, and directional lane allocations, the adjacency matrices $A_0$ and $A_w$ are intrinsically asymmetric: $A_0 \neq A_0^T$ and $A_w \neq A_w^T$.
 
-For any square matrix $M \in \mathbb{R}^{n \times n}$, we define its spectrum $\sigma(M) = \{ \lambda \in \mathbb{C} : \det(\lambda I_n - M) = 0 \}$ as the set of its eigenvalues, and its spectral radius operator as:
-\begin{equation}
-\rho(M) = \max_{\lambda \in \sigma(M)} |\lambda|.
-\label{eq:spectral_radius_def}
-\end{equation}
-
 For a non-negative, irreducible matrix $A_0 \ge 0$ (which corresponds to a strongly connected directed road network), the Perron-Frobenius Theorem establishes fundamental spectral properties \cite{Perron1907, Frobenius1912, Cvetkovic1980}:
 \begin{enumerate}
-    \item The spectral radius $\rho(A_0) > 0$ is a simple, strictly positive real eigenvalue belonging to $\sigma(A_0)$.
+    \item The spectral radius $\rho(A_0) = \max_i |\lambda_i(A_0)|$ is a simple, strictly positive real eigenvalue ($\rho(A_0) > 0$).
     \item There exists a unique, strictly positive right eigenvector $\mathbf{v} > 0$ (the Perron vector) such that $A_0 \mathbf{v} = \rho(A_0) \mathbf{v}$.
-    \item For any other eigenvalue $\lambda \in \sigma(A_0)$, we have $|\lambda| \le \rho(A_0)$.
+    \item For any other eigenvalue $\lambda \in \sigma(A_0)$, $|\lambda| \le \rho(A_0)$.
 \end{enumerate}
 
-Applied to the physical impedance matrix $A_w$, the Perron-Frobenius spectral radius $\rho(A_w) = \max_{\lambda \in \sigma(A_w)} |\lambda|$ provides a macroscopic spectral descriptor of the network's global free-flow throughput capacity and kinematic circulation intensity under uncongested conditions.
+In urban transportation physics, the Perron-Frobenius spectral radius $\rho(A_w)$ provides a macroscopic spectral descriptor of the network's free-flow impedance and kinematic circulation intensity under uncongested conditions.
 
 \subsection{Non-Normality, Commutator Norm, and $\epsilon$-Pseudospectra}
-A matrix $M \in \mathbb{R}^{n \times n}$ is normal if and only if it commutes with its transpose: $M M^T = M^T M$. While undirected road networks yield symmetric (and therefore normal) graph Laplacians, real-world directed road networks are highly non-normal ($M M^T \neq M^T M$).
+A matrix $A \in \mathbb{R}^{n \times n}$ is normal if and only if it commutes with its transpose: $A A^T = A^T A$. While undirected road networks yield symmetric (and therefore normal) graph Laplacians, real-world directed road networks are highly non-normal ($A A^T \neq A^T A$).
 
-To quantify the degree of structural non-normality, we compute the Frobenius commutator norm $\Delta(M)$ \cite{Henrici1962}:
+To quantify the degree of structural non-normality, we compute the Frobenius commutator norm $\Delta(A)$ \cite{Henrici1962}:
 \begin{equation}
-\Delta(M) = \| M M^T - M^T M \|_F = \sqrt{\operatorname{Tr}\left( (M M^T - M^T M)(M M^T - M^T M)^T \right)}.
+\Delta(A) = \| A A^T - A^T A \|_F = \sqrt{\operatorname{Tr}\left( (A A^T - A^T A)(A A^T - A^T A)^T \right)}.
 \label{eq:commutator}
 \end{equation}
 
-Although the physical impedance matrix $A_w \in \mathbb{R}_{\ge 0}^{n \times n}$ is strictly real, its asymmetry implies complex eigenvalues and non-orthogonal eigenvectors. Under Schur's unitary triangularization theorem \cite{Schur1909}, $A_w$ factorizes in the complex domain as $A_w = U (D + N) U^*$, where $U \in \mathbb{C}^{n \times n}$ is unitary ($U^* U = I_n$), $D = \operatorname{diag}(\lambda_1, \dots, \lambda_n) \in \mathbb{C}^{n \times n}$ contains the spectrum $\sigma(A_w)$, and $N \in \mathbb{C}^{n \times n}$ is strictly upper triangular. The matrix is normal if and only if $N = 0$. When $N \neq 0$, the non-orthogonality of eigenvectors triggers transient dynamical amplification phenomena that cannot be captured by eigenvalues alone \cite{Trefethen2005}.
+By Schur\'s unitary triangularization theorem \cite{Schur1909}, any square matrix $A_w \in \mathbb{C}^{n \times n}$ can be decomposed as $A_w = U (D + N) U^*$, where $U$ is unitary, $D$ is diagonal containing the eigenvalues $\lambda_i(A_w)$, and $N$ is strictly upper triangular. The matrix is normal if and only if $N = 0$. In non-normal matrices ($N \neq 0$), the eigenvectors are non-orthogonal, leading to transient dynamical phenomena that cannot be predicted by eigenvalues alone \cite{Trefethen2005}.
 
-In hydrodynamic traffic flow theory \cite{Lighthill1955, Richards1956, Kerner2009, Whitham2011}, stop-and-go waves propagate backwards against the vehicle stream. In continuous linear dynamical models $\dot{\mathbf{x}}(t) = A_w \mathbf{x}(t)$ (where $\dot{\mathbf{x}}(t) = \frac{d\mathbf{x}(t)}{dt}$ is the time-derivative of the vehicle density state $\mathbf{x}(t) \in \mathbb{R}^n$), non-normality enables massive transient energy growth $\|e^{t A_w}\|_2 \gg 1$ (under the induced matrix 2-norm $\|M\|_2 = \sigma_{\max}(M)$) even when all eigenvalues have negative real parts ($\operatorname{Re}(\lambda_i) < 0$).
+In hydrodynamic traffic flow theory \cite{Lighthill1955, Richards1956, Kerner2009, Whitham2011}, stop-and-go waves propagate backwards against the traffic stream. In linear dynamical systems $\dot{x} = A_w x$, non-normality enables massive transient growth $\|e^{t A_w}\| \gg 1$ even when all eigenvalues have negative real parts ($\operatorname{Re}(\lambda_i) < 0$).
 
-To quantify this transient vulnerability, we define the general $\epsilon$-pseudospectrum $\Lambda_\epsilon(M)$ for any matrix $M \in \mathbb{R}^{n \times n}$ and perturbation margin $\epsilon > 0$ \cite{Trefethen2005}:
+To capture this transient vulnerability, we introduce the $\epsilon$-pseudospectrum $\Lambda_\epsilon(A_w)$ \cite{Trefethen2005}:
 \begin{equation}
-\Lambda_\epsilon(M) = \{ z \in \mathbb{C} : \|(z I_n - M)^{-1}\|_2 > \epsilon^{-1} \},
+\Lambda_\epsilon(A_w) = \{ z \in \mathbb{C} : \|(z I - A_w)^{-1}\| > \epsilon^{-1} \},
 \label{eq:pseudospectrum}
 \end{equation}
-which represents the union of spectra $\sigma(M + E)$ for all perturbation matrices $E \in \mathbb{C}^{n \times n}$ with $\|E\|_2 < \epsilon$. The $\epsilon$-pseudospectral radius is defined as:
-\begin{equation}
-\alpha_\epsilon(M) = \sup \{ |z| : z \in \Lambda_\epsilon(M) \},
-\label{eq:pseudospectral_radius}
-\end{equation}
-which governs short-term congestion shock amplification before asymptotic dissipation.
+which represents the set of eigenvalues of all perturbed matrices $A_w + E$ with $\|E\| < \epsilon$. The $\epsilon$-pseudospectral radius $\alpha_\epsilon(\tilde{A}_w) = \sup \{ |z| : z \in \Lambda_\epsilon(\tilde{A}_w) \}$ governs short-term congestion amplification before asymptotic dissipation.
 
 Table~\ref{tab:operator_hydro} establishes the formal mathematical correspondence between non-normal spectral matrix operators and physical traffic flow mechanisms.
 
@@ -130,15 +119,14 @@ Table~\ref{tab:operator_hydro} establishes the formal mathematical correspondenc
 \label{tab:operator_hydro}
 \centering
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{p{3.4cm}p{4.6cm}p{3.8cm}p{6.2cm}}
+\begin{tabular}{p{3.2cm}p{4.8cm}p{3.8cm}p{6.0cm}}
 \toprule
 \textbf{Spectral Matrix Operator} & \textbf{Formal Linear Algebraic Definition} & \textbf{Traffic Flow Analogue} & \textbf{Physical Mechanism in SUMO / HBEFA} \\
 \midrule
 \textbf{Commutator Norm} $\Delta(\tilde{A}_0)$ & $\| \tilde{A}_0 \tilde{A}_0^T - \tilde{A}_0^T \tilde{A}_0 \|_F$ & Rotational Flow Vorticity & Shear friction and lane-change conflicts in circular one-way arteries \\
-\textbf{Kreiss Constant} $K(\tilde{A}_w)$ & $\sup_{|z|>1} (|z|-1) \|(z I_n - \tilde{A}_w)^{-1}\|_2$ & Transient Congestion Wave Growth & Localized queue amplification under sudden vehicle demand surges \\
-\textbf{Hardy Norm} $\|R(\cdot, \tilde{A}_w)\|_{H_2}$ & $\left( \frac{1}{2\pi} \int_0^{2\pi} \| (e^{i\theta} I_n - \tilde{A}_w)^{-1} \|_F^2 d\theta \right)^{1/2}$ & Integrated Stochastic Sensitivity & Overall network resistance to distributed random micro-slowdowns \\
-\textbf{Pseudospectral Radius} $\alpha_\epsilon(\tilde{A}_w)$ & $\sup \{ |z| : z \in \Lambda_\epsilon(\tilde{A}_w) \}$ & Pseudospectral Transient Margin & Peak short-term shockwave envelope under localized capacity perturbations \\
-\textbf{Spectral Radius} $\rho(A_w)$ & $\max_{\lambda \in \sigma(A_w)} |\lambda|$ & Macro Free-Flow Impedance & Global upper bound on kinematic circulation rate \\
+\textbf{Kreiss Constant} $K(\tilde{A}_w)$ & $\sup_{|z|>1} (|z|-1) \|(z I - \tilde{A}_w)^{-1}\|$ & Transient Congestion Wave Growth & Localized queue amplification under sudden vehicle demand surges \\
+\textbf{Hardy Norm} $\|R(z, \tilde{A}_w)\|_{H_2}$ & $\left( \frac{1}{2\pi} \int_0^{2\pi} \| (e^{i\theta} I - \tilde{A}_w)^{-1} \|_F^2 d\theta \right)^{1/2}$ & Integrated Stochastic Sensitivity & Overall network resistance to distributed random micro-slowdowns \\
+\textbf{Spectral Radius} $\rho(A_w)$ & $\max_i |\lambda_i(A_w)|$ & Macro Free-Flow Impedance & Global upper bound on kinematic circulation rate \\
 \textbf{Spectral Gap} $\Delta\lambda$ & $|\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ & Rapid Flow Mixing Rate & Availability of alternative bypass paths during bottleneck formation \\
 \bottomrule
 \end{tabular}%
@@ -164,27 +152,27 @@ For any node with zero out-degree (sinks), the corresponding diagonal entry is s
 
 The discrete-time dynamical evolution of vehicular density $x_{t+1} = \tilde{A}_w x_t$ is governed by the Kreiss Matrix Theorem \cite{Kreiss1962}:
 \begin{equation}
-K(\tilde{A}_w) = \sup_{|z| > 1} (|z| - 1) \| (z I_n - \tilde{A}_w)^{-1} \|_2.
+K(\tilde{A}_w) = \sup_{|z| > 1} (|z| - 1) \| (z I - \tilde{A}_w)^{-1} \|.
 \label{eq:kreiss}
 \end{equation}
 
 The Kreiss constant satisfies the two-sided inequality:
 \begin{equation}
-K(\tilde{A}_w) \le \sup_{k \ge 0} \| \tilde{A}_w^k \|_2 \le e \cdot n \cdot K(\tilde{A}_w).
+K(\tilde{A}_w) \le \sup_{k \ge 0} \| \tilde{A}_w^k \| \le e \cdot n \cdot K(\tilde{A}_w).
 \label{eq:kreiss_bound}
 \end{equation}
 
 When $K(\tilde{A}_w) \gg 1$, vehicular perturbations experience massive transient growth before decaying to steady-state equilibrium, strongly driving micro-acceleration emission bursts.
 
-Because $\rho(\tilde{A}_w) \le 0.95 < 1$, the matrix resolvent operator $R(z, \tilde{A}_w) = (z I_n - \tilde{A}_w)^{-1}$ is regular and analytic on the closed exterior unit disk $\mathbb{D}^c = \{z \in \mathbb{C} : |z| \ge 1\}$. We evaluate the discrete Hardy $H_2(\mathbb{D}^c)$ norm of the resolvent transfer function over the unit circle boundary $z = e^{i\theta}$ ($\theta \in [0, 2\pi)$):
+Because $\rho(\tilde{A}_w) < 1$, the resolvent operator $(e^{i\theta} I - \tilde{A}_w)^{-1}$ is regular and analytic on the closed unit circle $\mathbb{T} = \{e^{i\theta} : \theta \in [0, 2\pi)\}$. We project the resolvent onto the discrete Hardy space $H_2(\mathbb{D}^c)$ over the exterior of the unit disk:
 \begin{equation}
-\| R(\cdot, \tilde{A}_w) \|_{H_2}^2 = \frac{1}{2\pi} \int_0^{2\pi} \operatorname{Tr}\left( \left((e^{i\theta} I_n - \tilde{A}_w)^{-1}\right)^* (e^{i\theta} I_n - \tilde{A}_w)^{-1} \right) d\theta.
+\| R(z, \tilde{A}_w) \|_{H_2}^2 = \frac{1}{2\pi} \int_0^{2\pi} \operatorname{Tr}\left( \left((e^{i\theta} I - \tilde{A}_w)^{-1}\right)^* (e^{i\theta} I - \tilde{A}_w)^{-1} \right) d\theta.
 \label{eq:hardy}
 \end{equation}
 
-By expanding the resolvent in Laurent series $(e^{i\theta} I_n - \tilde{A}_w)^{-1} = \sum_{k=0}^\infty e^{-i(k+1)\theta} \tilde{A}_w^k$ and applying Parseval's identity \cite{Hardy1915, Trefethen2005}, the complex boundary variable $z = e^{i\theta}$ is integrated out over the circle, and the integral converges unconditionally to the discrete Lyapunov energy sum:
+By expanding the resolvent in Laurent series $(e^{i\theta} I - \tilde{A}_w)^{-1} = \sum_{k=0}^\infty e^{-i(k+1)\theta} \tilde{A}_w^k$ and applying Parseval\'s identity \cite{Hardy1915, Trefethen2005}, the integral converges unconditionally to the discrete Lyapunov sum:
 \begin{equation}
-\| R(\cdot, \tilde{A}_w) \|_{H_2}^2 = \sum_{k=0}^\infty \| \tilde{A}_w^k \|_F^2 = \operatorname{Tr}(P),
+\| R(z, \tilde{A}_w) \|_{H_2}^2 = \sum_{k=0}^\infty \| \tilde{A}_w^k \|_F^2 = \operatorname{Tr}(P),
 \label{eq:hardy_lyapunov}
 \end{equation}
 where $P$ is the unique, strictly positive definite solution ($P \succ 0$) to the discrete Lyapunov equation:
@@ -220,24 +208,25 @@ Evaluating localized edge perturbations via the second-order expansion \eqref{eq
 To capture the multi-physics coupling between network topology, non-normal operator spectrum, traffic demand, and fleet characteristics, we construct a 47-dimensional descriptor vector $\mathbf{x} \in \mathbb{R}^{47}$ structured into five functional families:
 
 \begin{enumerate}
-    \item \textbf{Kinematic Traffic Demand (4 Descriptors)}: Total simulated vehicle volume $N_{\text{veh}}$, mean vehicle dwell time $\bar{T}_{\text{sim}}$, total vehicle-kilometers traveled $L_{\text{tot}} = \sum_{k=1}^{N_{\text{veh}}} \int_0^{T_k} \|\mathbf{v}_k(t)\|_2 dt$ (where $\mathbf{v}_k(t) \in \mathbb{R}^2$ is the instantaneous vehicle velocity vector and $T_k$ is its total trip duration), and network-wide mean legal speed limit $\bar{v}_{\text{free}} = \frac{1}{m} \sum_{e \in E} v_{\text{free}, e}$.
+    \item \textbf{Kinematic Traffic Demand (4 Descriptors)}: Total simulated vehicle volume $N_{\text{veh}}$, mean vehicle dwell time $\bar{T}_{\text{sim}}$, total vehicle-kilometers traveled $L_{\text{tot}} = \sum_k \int_0^{T_k} \|\mathbf{v}_k(t)\| dt$, and network-wide mean legal speed limit $\bar{v}_{\text{free}} = \frac{1}{m} \sum_{e \in E} W_e$.
     \item \textbf{Fleet Powertrain and Fuel Mix (2 Descriptors)}: Fleet electrification ratio $\text{Fleet}_{\text{elec}} = N_{\text{EV}} / N_{\text{veh}} \in [0, 1]$ (zero-tailpipe emissions) and heavy-duty freight fraction $\text{Fleet}_{\text{HGV}} = N_{\text{HGV}} / N_{\text{veh}} \in [0, 1]$.
-    \item \textbf{Physical Road Network Topology (10 Descriptors)}: (1) Intersection node count $n$, (2) directed road segment count $m$, (3) network density $\delta = m / (n(n-1))$, (4) mean node degree $\bar{k}$, (5) degree standard deviation $\sigma_k$, (6) mean edge length $\bar{L}$, (7) total network length $L_{\text{net}} = \sum_{ij} L_{ij}$, (8) speed limit variance across edges $\sigma_v^2 = \frac{1}{m} \sum_{e} (v_{\text{free}, e} - \bar{v}_{\text{free}})^2$, (9) total network lane storage capacity $C_{\text{tot}} = \sum_{ij} C_{ij}$, and (10) planar meshedness coefficient $M = (m - n + 1) / (2n - 5) \in [0, 1]$ (which quantifies cycle redundancy, ranging from $0$ for tree-like branching networks to $1$ for fully triangulated planar grids). In addition, route circuity $\chi = \frac{1}{|P|} \sum_{(u,v) \in P} \frac{d_{\text{net}}(u,v)}{d_{\text{euc}}(u,v)}$ (ratio of shortest network travel distance over Euclidean straight-line distance) is computed as a global geometric benchmark.
-    \item \textbf{Non-Normal Spectral Graph Invariants (20 Descriptors)}:
-    \begin{itemize}
-        \item Perron-Frobenius spectral radii $\rho(A_0)$ and $\rho(A_w)$ (2 features).
-        \item Spectral gap $\Delta\lambda = |\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ (1 feature).
-        \item Top 5 leading eigenvalue magnitudes $\{|\lambda_1(\tilde{A}_0)|, \dots, |\lambda_5(\tilde{A}_0)|\}$ (5 features).
-        \item Commutator non-normality $\Delta(\tilde{A}_0)$ and $\Delta(\tilde{A}_w)$ (2 features).
-        \item Kreiss transient growth constants $K(\tilde{A}_0)$ and $K(\tilde{A}_w)$ (2 features).
-        \item Discrete Hardy $H_2$ energy norms $\|R(\cdot, \tilde{A}_0)\|_{H_2}$ and $\|R(\cdot, \tilde{A}_w)\|_{H_2}$ (2 features).
-        \item Pseudospectral radii $\alpha_{0.01}(\tilde{A}_0)$ and $\alpha_{0.01}(\tilde{A}_w)$ for $\epsilon = 0.01$ (2 features).
-        \item First- and second-order Kato perturbation derivatives $\{\lambda_1^{(1)}, \lambda_2^{(1)}, \lambda_1^{(2)}, \lambda_2^{(2)}\}$ (4 features).
-    \end{itemize}
-    \item \textbf{Spectral-Traffic Cross-Interactions (11 Descriptors)}: Second-order multiplicative couplings capturing physics non-linearities: $\rho(A_w) \times N_{\text{veh}}$, $\Delta(\tilde{A}_0) \times N_{\text{veh}}$, $K(\tilde{A}_w) \times \bar{v}_{\text{free}}$, $\|R(\cdot, \tilde{A}_w)\|_{H_2} \times N_{\text{veh}}$, $\text{Fleet}_{\text{elec}} \times \rho(A_w)$, $\text{Fleet}_{\text{HGV}} \times \Delta(\tilde{A}_w)$, $C_{\text{tot}} \times K(\tilde{A}_w)$, $M \times \Delta\lambda$, $\delta \times \rho(A_0)$, $\alpha_{0.01}(\tilde{A}_w) \times N_{\text{veh}}$, and $\lambda_1^{(1)} \times N_{\text{veh}}$ (11 features).
+    \item \textbf{Physical Road Network Topology (10 Descriptors)}: Intersection count $n$, segment count $m$, network density $\delta = m / (n(n-1))$, mean node degree $\bar{k}$ and degree standard deviation $\sigma_k$, mean edge length $\bar{L}$, total network length $L_{\text{net}} = \sum_{ij} L_{ij}$, speed limit variance $\sigma_W^2$, total lane storage capacity $C_{\text{tot}} = \sum_{ij} C_{ij}$, route circuity $\chi$, and planar meshedness coefficient $M = (m - n + 1) / (2n - 5)$.
+    \item \textbf{Non-Normal Graph-Spectral Invariants (20 Descriptors)}: 
+    \begin{enumerate}
+        \item Unweighted and weighted Perron-Frobenius spectral radii $\rho(A_0)$ and $\rho(A_w)$ from \eqref{eq:adjacency} (2 descriptors).
+        \item Spectral gap $\Delta\lambda = |\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$, where $\lambda_1, \lambda_2 \in \mathbb{C}$ are the top 2 leading eigenvalues of $\tilde{A}_0$ sorted by descending modulus (1 descriptor).
+        \item Top-5 leading eigenvalue moduli $|\lambda_1(\tilde{A}_w)|, \dots, |\lambda_5(\tilde{A}_w)|$ of the impedance-weighted transition matrix $\tilde{A}_w$ defined in \eqref{eq:normalized_A} (5 descriptors).
+        \item Commutator non-normality norms $\Delta(\tilde{A}_0)$ and $\Delta(\tilde{A}_w)$ from \eqref{eq:commutator} (2 descriptors).
+        \item Kreiss transient growth constants $K(\tilde{A}_0)$ and $K(\tilde{A}_w)$ from \eqref{eq:kreiss} (2 descriptors).
+        \item Discrete Hardy $H_2$ resolvent norms $\|R(z, \tilde{A}_0)\|_{H_2}$ and $\|R(z, \tilde{A}_w)\|_{H_2}$ from \eqref{eq:hardy_lyapunov} (2 descriptors).
+        \item $\epsilon$-pseudospectral radii $\alpha_{0.01}(\tilde{A}_0)$ and $\alpha_{0.01}(\tilde{A}_w)$ from \eqref{eq:pseudospectrum} with $\epsilon = 0.01$ (2 descriptors).
+        \item First- and second-order Kato perturbation derivatives $\lambda^{(1)}(A_0), \lambda^{(2)}(A_0), \lambda^{(1)}(A_w), \lambda^{(2)}(A_w)$ defined in \eqref{eq:kato_1}--\eqref{eq:kato_2} (4 descriptors).
+    \end{enumerate}
+    \item \textbf{Non-Linear Cross Interactions (11 Descriptors)}: Physically motivated cross-ratios capturing non-linear phase transitions: demand density $N_{\text{veh}} / L_{\text{net}}$, lane capacity saturation $N_{\text{veh}} / C_{\text{tot}}$, Spectral Shock Index $N_{\text{veh}} \cdot K(\tilde{A}_w) / C_{\text{tot}}$, Net ICE volume $N_{\text{veh}} \cdot (1 - \text{Fleet}_{\text{elec}})$, Non-Normal Shearing Load $N_{\text{veh}} \cdot \Delta(\tilde{A}_0) / n$, Kinetic Dissipation Index $\rho(A_w) \cdot \sigma_W / \bar{v}_{\text{free}}$, Transient Queue Load $N_{\text{veh}} \cdot K(\tilde{A}_w) / n$, Dynamic Dwell Shock $\bar{T}_{\text{sim}} \cdot \rho(A_w) / L_{\text{net}}$, Meshed Demand Capacity $M \cdot N_{\text{veh}} / C_{\text{tot}}$, Stochastic Resolvent Energy $\|R(z, \tilde{A}_w)\|_{H_2} \cdot N_{\text{veh}} / L_{\text{net}}$, and Fleet Congestion Interaction $\text{Fleet}_{\text{HGV}} \cdot N_{\text{veh}} / C_{\text{tot}}$.
 \end{enumerate}
 
-The complete 47-dimensional feature vector $\mathbf{x} \in \mathbb{R}^{47}$ partitions naturally into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}]$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the $21$ scale-invariant intrinsic topological and spectral descriptors ($10$ topology + $11$ non-normal invariants) utilized for the barycentric domain diagnostic, $\mathbf{x}_{\text{demand}} \in \mathbb{R}^4$ captures dynamic traffic demand, $\mathbf{x}_{\text{fleet}} \in \mathbb{R}^2$ represents powertrain shares, and $\mathbf{x}_{\text{cross}} \in \mathbb{R}^{20}$ gathers the remaining spectral sensitivities and cross-terms ($21 + 4 + 2 + 20 = 47$).
+\textit{Analytical Commentary on Descriptor Synergy}:
+The 47 descriptors systematically bridge micro-kinematics and macro-topology ($4 + 2 + 10 + 20 + 11 = 47$). While Family 1 and 2 define boundary throughput and emissions factors, Family 4 (Non-Normal Spectrum) captures how directed bottleneck asymmetries propagate congestion shockwaves across the entire network. Family 5 combines these features into dimensionless indices that allow XGBoost decision trees to accurately isolate non-linear traffic phase transitions.
 
 \subsection{Target Normalization and Scale Decoupling}
 In naive regression models targeting raw total carbon dioxide emissions $Y = \text{CO}_2$ (kg), the strong collinearity between vehicle volume and total fuel consumption ($r(N_{\text{veh}}, \text{CO}_2) = 0.9865$) causes optimization algorithms to allocate almost all split importance to $N_{\text{veh}}$. Consequently, topological and spectral features are suppressed as minor residuals, leading to catastrophic failure when transferring to cities with identical vehicle counts but radically different bottleneck topologies.
@@ -421,7 +410,7 @@ w/o Demand Descriptors ($N_{\text{veh}}, L_{\text{tot}}$) & 43 & 72.10 & 249.2 &
 \textit{Analytical Commentary on Ablation Results}:
 Table~\ref{tab:fine_ablation} underscores three critical takeaways:
 \begin{enumerate}
-    \item \textbf{Indispensability of Non-Normal Invariants}: Removing non-normal operators ($\Delta(\tilde{A}), K(\tilde{A}), \|R(\cdot,\tilde{A})\|_{H_2}, \alpha_\epsilon(\tilde{A})$) causes a severe $8.14$ percentage point drop in normalized $R^2$ ($89.39\% \to 81.25\%$) and doubles the total emission MAPE ($2.74\% \to 6.45\%$), indicating that asymmetric transient dynamics provide vital predictive information unavailable in symmetric graph metrics.
+    \item \textbf{Indispensability of Non-Normal Invariants}: Removing non-normal operators ($\Delta(\tilde{A}), K(\tilde{A}), \|R(z,\tilde{A})\|_{H_2}, \alpha_\epsilon(\tilde{A})$) causes a severe $8.14$ percentage point drop in normalized $R^2$ ($89.39\% \to 81.25\%$) and doubles the total emission MAPE ($2.74\% \to 6.45\%$), indicating that asymmetric transient dynamics provide vital predictive information unavailable in symmetric graph metrics.
     \item \textbf{Role of Target Normalization}: Training directly on unnormalized total $\text{CO}_2$ drops performance to $93.10\%$ ($+5.66$ percentage points higher MAPE), demonstrating that scale decoupling is essential for structural feature utilization.
     \item \textbf{Ablation of Kato Derivatives}: Removing the 4 Kato perturbation descriptors drops the feature count from 47 to 43 and degrades normalized $R^2$ by $3.29$ percentage points, highlighting the value of analytical sensitivity derivatives.
 \end{enumerate}
@@ -450,12 +439,8 @@ Fold 5 (Dense Megacity Split) & 98.68 & 3,080 & 2,090 & 2.38 \\
 }
 \end{table}
 
-\textit{Analytical Commentary on Cross-Validation and Dual-Target Decoupling}:
-The results in Table~\ref{tab:cv_metrics} demonstrate strong statistical stability, with an average 5-fold cross-validation $R^2$ of $97.99\%$ and a sample standard deviation of $\pm 0.90\%$. It is essential to emphasize the complementary roles of the two evaluation targets:
-\begin{enumerate}
-    \item \textbf{Normalized Per-Vehicle Target} $y = \text{CO}_2 / N_{\text{veh}}$ (Table~\ref{tab:baselines}): By dividing total emissions by vehicle volume, the dominant trivial scaling of city size ($r = 0.9865$ in Table~\ref{tab:correlation}) is mathematically eliminated. The model achieves $R^2 = 89.39\%$ (RMSE $= 152.6$~g/veh), demonstrating the intrinsic predictive power of the 20 non-normal spectral invariants in capturing congestion-induced emission variations.
-    \item \textbf{Rebuilt Total Metropolitan Emissions} $\hat{Y} = \hat{y} \cdot N_{\text{veh}}$ (Table~\ref{tab:cv_metrics}): Rescaling the per-vehicle predictions back to macroscopic city totals yields an internal test $R^2 = 98.95\%$ and a 5-fold cross-validation mean $R^2 = 97.99 \pm 0.90\%$ (MAPE $= 2.67 \pm 0.42\%$). Even on Fold 4 containing diverse mixed typologies, the model maintains $R^2 = 96.90\%$, confirming that scale decoupling prevents overfitting and preserves macro-level fidelity.
-\end{enumerate}
+\textit{Analytical Commentary on Cross-Validation}:
+The results in Table~\ref{tab:cv_metrics} demonstrate strong statistical stability, with an average $R^2$ of $97.99\%$ and a sample standard deviation of $\pm 0.90\%$. Even on Fold 4 containing diverse mixed typologies, the model maintains $R^2 = 96.90\%$ and MAPE $= 3.20\%$, confirming that the surrogate does not rely on memorization of specific city layouts.
 
 \subsection{Comparative Case Studies: Microscopic SUMO Physics vs. Graph-Spectral Surrogate Across Six Global Archetypes}
 To evaluate model performance under realistic operational conditions, Table~\ref{tab:case_studies} presents a comparative analysis between microscopic SUMO simulations and our graph-spectral surrogate across six distinct global urban archetypes. In addition, Fig.~\ref{fig:speedup} illustrates the computational scaling divergence between SUMO and our surrogate.
@@ -491,7 +476,7 @@ To evaluate model performance under realistic operational conditions, Table~\ref
 \begin{enumerate}
     \item \textbf{Tokyo (Ultra-Dense Hybrid Megacity)}: Tokyo represents the largest network evaluated ($42,100$ nodes, $96,800$ edges, $112,000$ vehicles). While SUMO required $6.2$~hours of execution time, our surrogate generated the emission estimate ($239,800.5$~kg vs. $245,600.2$~kg SUMO reference emissions, $-2.36\%$ relative error, $2.141$~kg/veh vs. $2.193$~kg/veh) in just $6.1$~milliseconds, representing an operational speedup of $3.67 \times 10^6 \times$. The spectral radius $\rho(A_w) = 14.82$ captures the vast multi-tier arterial connectivity and circulation capacity of Tokyo\'s hierarchical network.
     
-    \item \textbf{Versailles (Historical Calibrated Arterial)}: The Versailles network ($2,184$ nodes, $5,022$ edges) achieved a relative error of $-1.02\%$ ($23,210.4$~kg predicted vs. $23,450.8$~kg SUMO, $2.036$~kg/veh vs. $2.065$~kg/veh). This indicates that on real-world calibrated networks with coordinated signalized intersections, the non-normal commutator $\Delta(\tilde{A}_0) = 4.82$ and Hardy norm $\|R(\cdot, \tilde{A}_w)\|_{H_2} = 18.4$ capture rotational flow shearing and localized vehicle queuing.
+    \item \textbf{Versailles (Historical Calibrated Arterial)}: The Versailles network ($2,184$ nodes, $5,022$ edges) achieved a relative error of $-1.02\%$ ($23,210.4$~kg predicted vs. $23,450.8$~kg SUMO, $2.036$~kg/veh vs. $2.065$~kg/veh). This indicates that on real-world calibrated networks with coordinated signalized intersections, the non-normal commutator $\Delta(\tilde{A}_0) = 4.82$ and Hardy norm $\|R(z, \tilde{A}_w)\|_{H_2} = 18.4$ capture rotational flow shearing and localized vehicle queuing.
     
     \item \textbf{Manhattan (Orthogonal Dense Gridiron)}: Manhattan ($4,890$ nodes, $12,400$ edges, $35,000$ vehicles) exhibits high directional asymmetry due to alternating one-way avenues and streets. SUMO required $1.2$~hours, while the surrogate executed in $5.1$~ms with $-1.94\%$ relative error ($77,120.5$~kg vs. $78,650.0$~kg). The high Kreiss constant ($K(\tilde{A}_w) = 6.42$) accurately reflects transient queue propagation along avenues during peak surges.
     
@@ -536,14 +521,15 @@ To quantify whether an unseen city network lies within the topological interpola
 Let $\mathbf{X}_{\text{train}} \in \mathbb{R}^{65 \times 21}$ denote the standardized matrix of training cities in this invariant subspace. We solve:
 \begin{equation}
 \begin{aligned}
-\min_{\mathbf{w} \in \mathbb{R}^{65}} \quad & \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w} \|_2^2 + \gamma_{\text{bary}} \| \mathbf{w} \|_2^2 \\
-\text{s.t.} \quad & \sum_{j=1}^{65} w_j = 1, \quad w_j \ge 0 \quad \forall j \in \{1, \dots, 65\},
+\min_{\mathbf{w} \in \mathbb{R}^{65}} \quad & \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w} \|_2^2 + \gamma \| \mathbf{w} \|_2^2 \\
+\text{s.t.} \quad & \sum_{j=1}^{65} w_j = 1, \quad w_j \ge 0 \quad \forall j \in \{1, \dots, 65\}.
 \end{aligned}
 \label{eq:barycentric_qp}
 \end{equation}
-where $\gamma_{\text{bary}} = 10^{-3}$ is a Tikhonov regularization parameter enforcing smooth weight dispersion across training archetypes.
 
-Let $\mathbf{w}^* = (w_1^*, \dots, w_{65}^*)^T \in \mathbb{R}^{65}$ denote the optimal barycentric weight vector solving \eqref{eq:barycentric_qp}. Here, $n_{\text{active}} \in [1, 13]$ is defined as the count of training cities with strictly positive barycentric weights ($w_j^* > 0$). The regularized barycentric reconstruction residual distance $d_{\mathcal{H}} = \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w}^* \|_2$ provides an automated confidence diagnostic for zero-shot deployment. Total $\text{CO}_2$ emissions for any unseen test scenario are inferred directly by evaluating the trained surrogate model $\hat{y} = f_{\text{XGBoost}}(\mathbf{x}_{\text{test}})$, and rebuilt as $\hat{Y} = \hat{y} \cdot N_{\text{veh}}$.
+Here, $n_{\text{active}} \in [1, 13]$ is defined explicitly as the count of training cities with strictly positive barycentric weights ($w_j > 0$). The regularized barycentric reconstruction residual distance $d_{\mathcal{H}} = \| \mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w}^* \|_2$ provides an automated confidence diagnostic for zero-shot deployment.
+
+Table~\ref{tab:zeroshot} presents the zero-shot validation results across all nine unseen cities.
 
 \begin{table*}[htbp]
 \caption{Zero-Shot Cross-City Generalization Performance on 9 Unseen Global Networks (Representative Peak-Hour Scenarios)}
