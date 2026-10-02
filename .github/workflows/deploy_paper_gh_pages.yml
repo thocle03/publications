@@ -28,21 +28,17 @@ jobs:
         with:
           root_file: publication_co2_spectral_prediction_v10.tex
 
-      - name: Compile LaTeX document (V9)
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: publication_co2_spectral_prediction_v9.tex
-
       - name: Prepare site directory for GitHub Pages
         run: |
           mkdir -p site
-          cp publication_co2_spectral_prediction_v10.pdf site/ 2>/dev/null || true
-          cp publication_co2_spectral_prediction_v9.pdf site/ 2>/dev/null || true
+          cp publication_co2_spectral_prediction_v10.pdf site/
+          cp publication_co2_spectral_prediction_v10.pdf site/publication_co2_spectral_prediction_v9.pdf
+          cp publication_co2_spectral_prediction_v10.pdf site/publication_co2_spectral_prediction.pdf
           if [ -f index.html ]; then
             cp index.html site/
           fi
-          cp publication_co2_spectral_prediction_v10.tex site/ 2>/dev/null || true
-          cp publication_co2_spectral_prediction_v9.tex site/ 2>/dev/null || true
+          cp publication_co2_spectral_prediction_v10.tex site/
+          cp publication_co2_spectral_prediction_v10.tex site/publication_co2_spectral_prediction_v9.tex
           cp IEEEtran.cls site/ 2>/dev/null || true
 
       - name: Upload Pages artifact
