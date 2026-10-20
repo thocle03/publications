@@ -23,22 +23,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compile LaTeX document (V10)
+      - name: Compile LaTeX document (V11)
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: publication_co2_spectral_prediction_v10.tex
+          root_file: publication_co2_spectral_prediction_v11.tex
 
       - name: Prepare site directory for GitHub Pages
         run: |
           mkdir -p site
-          cp publication_co2_spectral_prediction_v10.pdf site/
-          cp publication_co2_spectral_prediction_v10.pdf site/publication_co2_spectral_prediction_v9.pdf
-          cp publication_co2_spectral_prediction_v10.pdf site/publication_co2_spectral_prediction.pdf
+          cp publication_co2_spectral_prediction_v11.pdf site/
+          cp publication_co2_spectral_prediction_v11.pdf site/publication_co2_spectral_prediction_v9.pdf
+          cp publication_co2_spectral_prediction_v11.pdf site/publication_co2_spectral_prediction.pdf
           if [ -f index.html ]; then
             cp index.html site/
           fi
-          cp publication_co2_spectral_prediction_v10.tex site/
-          cp publication_co2_spectral_prediction_v10.tex site/publication_co2_spectral_prediction_v9.tex
+          cp publication_co2_spectral_prediction_v11.tex site/
+          cp publication_co2_spectral_prediction_v11.tex site/publication_co2_spectral_prediction_v9.tex
           cp IEEEtran.cls site/ 2>/dev/null || true
 
       - name: Upload Pages artifact
