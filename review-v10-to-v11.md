@@ -83,6 +83,13 @@ La **Version 11** résout 100 % de ces points sans affaiblir la profondeur théo
      $$S_{\max}(A_w) = \max_{(i,j) \in \mathcal{E}} \frac{w_i v_j}{\mathbf{w}^H \mathbf{v}}$$
   4. Complexité de calcul ultra-légère : un simple appel `scipy.sparse.linalg.eigs(k=1)` donne $\mathbf{v}$ et $\mathbf{w}$ en 0.41 seconde, puis l'évaluation sur l'ensemble des arêtes s'effectue en 0.41 milliseconde.
 
+### Section IV-D & IV-E : Harmonisation du R² Unique (89.39 %) et Utilisation du MAPE (2.74 %) pour l'Échelle Urbaine
+* **Problème en V10** : La publication présentait deux coefficients $R^2$ différents pour le même modèle XGBoost : un $R^2 = 89.39\%$ sur la cible normalisée par véhicule, et un second $R^2 = 98.95\%$ sur les émissions totales reconstruites de la ville. Cette dualité a dérouté les professeurs relecteurs, qui s'interrogeaient sur l'existence de deux modèles distincts ou sur un potentiel artifice statistique lié au produit par $N_{\text{veh}}$.
+* **Résolution en V11** :
+  1. **Un seul et unique $R^2$ pour tout l'article** : la métrique $R^2$ ($89.39\%$ en test, $86.10 \pm 4.67\%$ en validation croisée 5-fold) est désormais réservée strictement à l'évaluation intrinsèque de l'algorithme d'apprentissage sur sa cible réelle ($y = \text{CO}_2 / N_{\text{veh}}$).
+  2. **Mesure de l'échelle macroscopique via le MAPE et la RMSE** : l'exactitude du bilan carbone global à l'échelle de la métropole entière (ce qui intéresse directement les décideurs municipaux) est quantifiée par son erreur relative réelle, le **MAPE (Mean Absolute Percentage Error)** qui atteint **$2.74\%$** (RMSE $= 3\,680$~kg, CV MAPE $= 2.67 \pm 0.42\%$).
+  3. **Suppression de la colonne redondante $R^2$ total dans les Tableaux IV et V** : Table IV et Table V disposent désormais d'une seule colonne $R^2$ pour le modèle, et évaluent le niveau macroscopique avec RMSE (kg), MAE (kg) et MAPE (%).
+
 ---
 
 ## 4. Répertoire Exhaustif des 15 Nouvelles Références Scientifiques Ajoutées
