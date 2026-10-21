@@ -249,3 +249,37 @@ Afin d'assurer une correspondance parfaite à 100 % entre les formules du papier
 ## 8. Synthèse Finale
 
 La Version 11 transforme un manuscrit prometteur mais vulnérable sur le plan théorique en un **article d'une solidité mathématique irréfutable**. Chaque équation possède désormais une démonstration claire ou une référence contemporaine dans une revue d'excellence (Science Advances, PRL, IEEE TAC, SIAM), tout en garantissant une correspondance parfaite avec le code informatique open-source du projet.
+
+
+# 10. Revue d'Assainissement Approfondie v11 (WAPE/MAPE, Écart-Type CV, Décompte et Ordre IEEE)
+
+Une revue critique approfondie de la version 11 a permis de résoudre les dernières incohérences mathématiques, statistiques et typographiques :
+
+## 1. Distinction Mathématique entre MAPE et WAPE
+Pour toute simulation individuelle $, la prédiction totale est $\hat{Y}_i = \hat{y}_i \cdot N_i$ et la vérité terrain est  = y_i \cdot N_i$. L'erreur relative en pourcentage est donc strictement identique :
+\frac{|\hat{Y}_i - Y_i|}{Y_i} = \frac{|\hat{y}_i \cdot N_i - y_i \cdot N_i|}{y_i \cdot N_i} = \frac{|\hat{y}_i - y_i|}{y_i}
+Par conséquent, la moyenne non pondérée des erreurs relatives (MAPE) est rigoureusement identique sur $ et sur $ : elle vaut .28\%$ pour XGBoost (.20\%$ pour GCN).
+Le chiffre de .74\%$ correspond en réalité à l'erreur absolue pondérée par les volumes de trafic (Weighted Absolute Percentage Error ou WAPE) :
+\text{WAPE} = \frac{\sum_i |\hat{Y}_i - Y_i|}{\sum_i Y_i} = \frac{\sum_i N_i |\hat{y}_i - y_i|}{\sum_i N_i y_i} = 2.74\%
+Cette métrique est essentielle pour les décideurs publics car elle mesure le biais carbone macroscopique global sans sur-pondérer les micro-villes. Les Tableaux V, VI, VII ainsi que le résumé et le texte ont été clarifiés en affichant explicitement le WAPE (.74\%$) et le MAPE (.28\%$).
+
+## 2. Harmonisation Statistique de la Validation Croisée
+- Les cinq ^2$ régionaux du Tableau VII (89.18, 78.51, 87.98, 83.49, 91.33) ont pour moyenne exacte .10\%$.
+- L'écart-type d'échantillon (=1$) est rigoureusement égal à $\pm 5.12\%$ (l'écart-type de population =0$ valant $\pm 4.58\%$, le chiffre antérieur $\pm 4.67\%$ était une approximation de saisie). La notation a été harmonisée sur .10 \pm 5.12\%$.
+- La distinction entre le score de test interne (^2 = 89.39\%$) et la moyenne de validation croisée (.10 \pm 5.12\%$) est maintenant claire et univoque dans le résumé, la Section III-C, le Tableau III et la Section IV-D.
+
+## 3. Audit des Villes d'Entraînement et Transfert Zero-Shot
+- L'analyse exhaustive du fichier data/xgboost_training_data_augmented.csv (349 simulations, 65 villes) montre que Casablanca (1 run), Séoul (3 runs) et Singapour (4 runs) étaient présentes dans les 65 villes d'entraînement (totalisant 8 simulations sur 349).
+- Pour ces villes, l'évaluation de généralisation a été menée en mode Leave-One-City-Out (LOCO).
+- À l'inverse, Amsterdam, Bogota, Dublin, Helsinki, Montréal et Zurich (ainsi que Guanajuato) ont un effectif de 0 simulation dans la base d'entraînement et constituent des réseaux entièrement inédits. Le texte de la Section IV-G a été ajusté pour refléter cette réalité en toute rigueur scientifique.
+
+## 4. Décompte Strict des 47 Descripteurs
+- Topologie (10 descripteurs) : retrait de la circuité $\chi$ qui n'était pas comptée dans le vecteur prédictif.
+- Invariants spectraux (20 descripteurs) : décompte équilibré (2 rayons spectraux, 1 gap de Markov, 7 valeurs propres/singulières dominantes, 2 commutateurs, 2 constantes de Kreiss, 2 normes $, 2 pseudo-spectres, 2 sensibilités de lien {\max}$).
+- Ratios croisés (11 descripteurs) : remplacement des dénominations pompeuses par des termes neutres et clairs (ex: {\text{veh}} \cdot K / C_{\text{tot}}$).
+- Total strict :  + 2 + 10 + 20 + 11 = 47$ descripteurs.
+
+## 5. Ordre Bibliographique Strict IEEE (1 à 33)
+Toutes les citations dans le texte ont été réordonnées dans leur ordre exact de première apparition :
+- Aucune citation dans le résumé.
+- Ordre séquentiel strict de [1] (IEA2023) à [33] (Papageorgiou2003) dans le corps du texte.
