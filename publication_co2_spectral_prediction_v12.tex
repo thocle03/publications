@@ -47,7 +47,7 @@ To overcome this limitation, machine learning surrogates have emerged as a promi
     \item \textbf{Zero-Shot Generalization}: Black-box neural models trained on a single metropolitan area cannot generalize to unobserved urban fabrics without extensive recalibration.
 \end{enumerate}
 
-To overcome these fundamental limitations, this paper introduces a physics-grounded topological graph-spectral surrogate framework. 
+To address these structural bottlenecks, this paper introduces a physics-grounded topological graph-spectral surrogate framework. 
 
 \textit{Why Non-Normality in Urban Traffic?}: In a network with only two-way roads, the matrix is symmetric and a disturbance decays at a rate given by the eigenvalues. Urban road networks are directed because of one-way streets and turn restrictions, and directed matrices are often non-normal. In a non-normal system, a disturbance (for example a slowdown at one intersection) can grow for a while before decaying, even if all eigenvalues are inside the unit disk. We use this as an analogy for temporary congestion growth.
 
@@ -61,6 +61,8 @@ The main contributions of this work are summarized as follows:
     \item \textbf{Zero-Shot Generalization and Convex Barycentric Diagnostic}: We validate model transferability across nine unseen metropolises, achieving a macroscopic MAPE of $2.67\%$ on representative base scenarios ($4.82\%$ over the full 18-run multi-scenario cohort). We introduce a 21-dimensional convex quadratic programming barycentric projection \cite{Boyd2004} that quantifies topological proximity to the training convex hull, providing an automated confidence metric for zero-shot deployment.
     \item \textbf{Fast Real-Time Inference for Digital Twins}: We benchmark computational latencies across metropolitan networks with up to $68,000$ raw nodes, demonstrating warm-start inference times under $6$~ms (more than $10^5$ times faster than SUMO) and cold-start network parsing under $132$~s, establishing the surrogate as an operational engine for real-time municipal digital twins.
 \end{enumerate}
+
+The mathematical foundations underlying these contributions are detailed in Section~II.
 
 %-------------------------------------------------------------------------------
 \section{Mathematical Foundation of Non-Normal Graph Operators}
@@ -87,8 +89,10 @@ We construct two fundamental adjacency matrices governing topological connectivi
     where $\tau_{ij} = L_{ij} / v_{\text{free}, ij}$ is the free-flow travel time of the link. The weight $(A_w)_{ij}$ is this travel time multiplied by the number of lanes (in units of $\text{lane}\cdot\text{s}$).
 \end{enumerate}
 
+In Section~II-D, we derive the dissipative operators $\tilde{A}_0$ and $\tilde{A}_w$ by normalizing and contracting the matrices $A_0$ and $A_w$ defined above, ensuring the stability properties required for the non-normal spectral analysis developed later in this section.
+
 \subsection{Perron-Frobenius Spectrum and Topological Asymmetry}
-Because of one-way streets and turn restrictions, A0 and Aw are in general not symmetric.
+We now analyze the spectral properties of the adjacency and impedance matrices defined in Section~II-A. Because of one-way streets and turn restrictions, $A_0$ and $A_w$ are in general not symmetric.
 
 For any square matrix $M \in \mathbb{R}^{n \times n}$, we denote its spectrum by $\sigma(M) = \{ \lambda \in \mathbb{C} : \det(\lambda I_n - M) = 0 \}$, and its spectral radius by:
 \begin{equation}
@@ -115,7 +119,7 @@ To quantify the degree of departure from normality, we compute the Frobenius com
 \end{equation}
 For the binary matrix $A_0$, $(A_0 A_0^T)_{ij}$ is the number of common successors of intersections $v_i$ and $v_j$, and $(A_0^T A_0)_{ij}$ is the number of common predecessors. On the diagonal, $(A_0 A_0^T - A_0^T A_0)_{ii} = d_{\text{out}}(v_i) - d_{\text{in}}(v_i)$. So $\Delta(A_0)$ is zero when all roads are two-way and tends to grow with one-way streets \cite{Asllani2018}. Complementarily, Henrici's departure from normality is given by $\operatorname{dep}_F(M) = \sqrt{\|M\|_F^2 - \sum_{i=1}^n |\lambda_i|^2}$ \cite{Henrici1962, Elsner1987}.
 
-Any square matrix can be written $M = U (D + N) U^*$, where $U$ is unitary, $D$ contains the eigenvalues, and $N$ is strictly upper triangular \cite{Horn2013}. $M$ is normal exactly when $N = 0$. When $N$ is large, a disturbance can grow for a while even if all eigenvalues lie strictly inside the unit disk \cite{Trefethen2005}.
+Any square matrix can be written $M = U (D + N) U^*$, where $U$ is unitary, $D$ contains the eigenvalues, and $N$ is strictly upper triangular \cite{Horn2013}. $M$ is normal exactly when $N = 0$. When $N$ is large, a disturbance can grow for a while even if all eigenvalues lie strictly inside the unit disk \cite{Trefethen2005}. We illustrate the phenomenon on $A_w$, but the transient amplification is formally quantified on its dissipative counterpart $\tilde{A}_w$ introduced in Section~II-D.
 
 To measure how sensitive the eigenvalues are to small perturbations, we use the $\epsilon$-pseudospectrum \cite{Trefethen2005}:
 \begin{equation}
@@ -145,7 +149,7 @@ Table~\ref{tab:operator_hydro} establishes the interpretative correspondence bet
 \textbf{Hardy Norm} $\|R(\cdot, \tilde{A}_w)\|_{H_2}$ & $\left( \sum_{k=0}^\infty \| \tilde{A}_w^k \|_F^2 \right)^{1/2}$ & Total response to random disturbances & Overall sensitivity to random intersection micro-slowdowns \\
 \textbf{Pseudospectral Radius} $\alpha_\epsilon(\tilde{A}_w)$ & $\sup \{ |z| : z \in \Lambda_\epsilon(\tilde{A}_w) \}$ & Sensitivity of eigenvalues to perturbations & Risk of transient queue growth under link capacity loss \\
 \textbf{Spectral Radius} $\rho(A_w)$ & $\max_{\lambda \in \sigma(A_w)} |\lambda|$ & Weighted connectivity & Heavily weighted arterial connection loops \\
-\textbf{Markov Spectral Gap} $\Delta\lambda_{\text{Markov}}$ & $1 - |\lambda_2(\tilde{A}_0)| / \beta$ & Mixing speed & How fast alternative bypass corridors disperse queues \\
+\textbf{Spectral Gap} $\Delta\lambda$ & $|\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ & Rapid Flow Mixing Rate & Availability of alternative bypass paths during bottleneck formation \\
 \bottomrule
 \end{tabular}%
 }
@@ -159,24 +163,23 @@ To obtain a stable operator for every network, we normalize each row of $A$ and 
 \end{equation}
 where $D_{\text{out}, 0} = \operatorname{diag}(A_0 \mathbf{1})$, $D_{\text{out}, w} = \operatorname{diag}(A_w \mathbf{1})$ (invertible, since every intersection has an outgoing road), and $\beta = 0.95$.
 
-We set $\beta = 0.95$ for two reasons. First, after row normalization the largest eigenvalue is $1$; multiplying by $\beta$ makes it equal to $0.95$, so all eigenvalues lie strictly inside the unit disk and the system is stable.
-Second, $\beta$ models vehicles leaving the network. With a $5\%$ chance of leaving at each intersection, a trip lasts on average $1 / (1 - \beta) = 20$ intersections \cite{Kemeny1960}, which is close to the mean trip length in our SUMO runs (mean $21.4$ edges per vehicle). The role of $\beta$ is similar to the damping factor in PageRank \cite{Langville2006}.
+We set $\beta = 0.95$ to enforce strict operator dissipativity and stability: after row normalization, multiplying by $\beta$ ensures that all eigenvalues satisfy $|\lambda| \le \beta = 0.95 < 1$. In open urban networks, this factor models an effective boundary outflow leakage of $1 - \beta = 0.05$ per step (vehicles parking or reaching destinations).
 
-Since $\rho(\tilde{A}) = \beta$ for every network, it carries no information and is not used as a feature. We use instead the spectral gap:
+Since $\rho(\tilde{A}) = \beta$ is invariant across networks, we evaluate the spectral gap:
 \begin{equation}
-\Delta\lambda_{\text{Markov}} = 1 - \frac{|\lambda_2(\tilde{A}_0)|}{\beta},
-\label{eq:markov_spectral_gap}
+\Delta\lambda = |\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|,
+\label{eq:spectral_gap}
 \end{equation}
-which is related to how fast a random walk on the network mixes \cite{Levin2017}.
+which measures the separation between the dominant and sub-dominant eigenvalues of the unweighted transition operator.
 
-Let $\mathbf{x}_t \in \mathbb{R}^n$ be the vehicle count at each intersection at step $t$. We model its evolution as $\mathbf{x}_{t+1} = \tilde{A}_w^T \mathbf{x}_t$. The Kreiss constant $K(\tilde{A}_w)$ \cite{Kreiss1962}:
+The continuous hydrodynamic model $\dot{\mathbf{x}} = A_w \mathbf{x}$ captures the physical propagation of backward-moving stop-and-go waves and explains how non-normality can induce large transient amplification even under asymptotic stability. For spectral analysis and surrogate learning, we transition to its discrete-time counterpart $\mathbf{x}_{t+1} = \tilde{A}_w \mathbf{x}_t$, obtained by sampling the continuous dynamics and normalizing the operator to ensure dissipativity and stability ($\rho(\tilde{A}_w) < 1$). This discrete formulation enables rigorous application of Kreiss transient-growth theory, Hardy $H^2$ resolvent norms, Lyapunov energy analysis, and pseudospectral sensitivity tools. The Kreiss constant $K(\tilde{A}_w)$ \cite{Kreiss1962}:
 \begin{equation}
 K(\tilde{A}_w) = \sup_{|z| > 1} (|z| - 1) \| (z I_n - \tilde{A}_w)^{-1} \|_2
 \label{eq:kreiss}
 \end{equation}
 measures how much a disturbance can grow temporarily before it dies out. The Kreiss Matrix Theorem \cite{Kreiss1962} bounds the largest growth of the powers of $\tilde{A}_w$ between $K$ and $e \cdot n \cdot K$ \cite{Spijker1991}. With $n = 10^4$ to $10^5$, this upper bound is loose, but when $K \gg 1$, a disturbance can grow temporarily before decaying.
 
-Since all eigenvalues of $\tilde{A}_w$ lie inside the unit disk, the resolvent $R(z, \tilde{A}_w) = (z I_n - \tilde{A}_w)^{-1}$ is well defined for $|z| \ge 1$. We measure its size with the $H_2$ norm \cite{Zhou1996, Bamieh2012}:
+The resolvent is the network's transfer function, capturing how disturbances evolve and spread through the city. Since all eigenvalues of $\tilde{A}_w$ lie inside the unit disk, the resolvent $R(z, \tilde{A}_w) = (z I_n - \tilde{A}_w)^{-1}$ is well defined for $|z| \ge 1$. We measure its size with the $H_2$ norm \cite{Zhou1996, Bamieh2012}:
 \begin{equation}
 \| R(\cdot, \tilde{A}_w) \|_{H_2}^2 = \frac{1}{2\pi} \int_0^{2\pi} \|(e^{i\theta} I_n - \tilde{A}_w)^{-1}\|_F^2 d\theta = \sum_{k=0}^\infty \| \tilde{A}_w^k \|_F^2 = \operatorname{Tr}(P),
 \label{eq:hardy_lyapunov}
@@ -207,10 +210,10 @@ To capture the multi-physics coupling between network topology, non-normal opera
     \item \textbf{Kinematic Traffic Demand (4 Descriptors)}: Total simulated vehicle volume $N_{\text{veh}}$, mean vehicle dwell time $\bar{T}_{\text{sim}}$, total vehicle-kilometers traveled $L_{\text{tot}}$ (total distance driven by all vehicles in vehicle-km), and network-wide mean legal speed limit $\bar{v}_{\text{free}} = \frac{1}{m} \sum_{e \in E} v_{\text{free}, e}$.
     \item \textbf{Fleet Powertrain and Fuel Mix (2 Descriptors)}: Fleet electrification ratio $\text{Fleet}_{\text{elec}} = N_{\text{EV}} / N_{\text{veh}} \in [0, 1]$ (zero-tailpipe emissions) and heavy-duty freight fraction $\text{Fleet}_{\text{HGV}} = N_{\text{HGV}} / N_{\text{veh}} \in [0, 1]$.
     \item \textbf{Physical Road Network Topology (10 Descriptors)}: (1) Intersection node count $n$, (2) directed road segment count $m$, (3) network density $\delta = m / (n(n-1))$, (4) mean node degree $\bar{k}$, (5) degree standard deviation $\sigma_k$, (6) mean edge length $\bar{L}$, (7) total network length $L_{\text{net}} = \sum_{ij} L_{ij}$, (8) speed limit variance across edges $\sigma_v^2 = \frac{1}{m} \sum_{e} (v_{\text{free}, e} - \bar{v}_{\text{free}})^2$, (9) total network lane storage capacity $C_{\text{tot}} = \sum_{ij} C_{ij}$, and (10) planar meshedness coefficient $M = (m_u - n + 1) / (2n - 5)$ on the simplified undirected topology (quantifying cycle redundancy \cite{Barthelemy2011}).
-    \item \textbf{Graph-Spectral Descriptors (20 Descriptors)}: 
+    \item \textbf{Graph-Spectral Descriptors (20 Descriptors)}: These descriptors quantify transient amplification, resolvent energy, pseudospectral sensitivity, and infrastructure-perturbation response of the dissipative operators $\tilde{A}_0$ and $\tilde{A}_w$:
     \begin{enumerate}
         \item Unweighted and weighted spectral radii $\rho(A_0)$ and $\rho(A_w)$ from \eqref{eq:adjacency} (2 descriptors).
-        \item Markov spectral gap $\Delta\lambda_{\text{Markov}} = 1 - |\lambda_2(\tilde{A}_0)|/\beta$ from \eqref{eq:markov_spectral_gap} (1 descriptor).
+        \item Spectral gap $\Delta\lambda = |\lambda_1(\tilde{A}_0) - \lambda_2(\tilde{A}_0)|$ from \eqref{eq:spectral_gap} (1 descriptor).
         \item Leading non-trivial eigenvalue moduli $|\lambda_2(\tilde{A}_w)|, |\lambda_3(\tilde{A}_w)|, |\lambda_4(\tilde{A}_w)|$ (3 descriptors) and leading singular values $\sigma_1(\tilde{A}_w), \dots, \sigma_4(\tilde{A}_w)$ (4 descriptors) (total 7 descriptors).
         \item Commutator non-normality norms $\Delta(\tilde{A}_0)$ and $\Delta(\tilde{A}_w)$ from \eqref{eq:commutator} (2 descriptors).
         \item Kreiss transient growth constants $K(\tilde{A}_0)$ and $K(\tilde{A}_w)$ from \eqref{eq:kreiss} (2 descriptors).
@@ -492,7 +495,7 @@ To evaluate model capability when deployed in a new city without prior SUMO cali
 
 On representative base peak-hour scenarios (Table~\ref{tab:zeroshot}), the surrogate achieves a volume-weighted WAPE of $3.06\%$ and an unweighted MAPE of $2.67\%$ (RMSE $= 3,199$~kg). The lower unweighted MAPE on this cohort ($2.67\%$) compared to the overall cross-validation dataset ($7.28\%$) is explained by city scale: the zero-shot test cities are medium-to-large metropolises ($14,000$ to $98,000$ vehicles), where relative deviations are smaller and smoother than in low-volume suburban networks.
 
-To check whether a new city is similar to the training cities, we write its feature vector $\mathbf{z}$ as a weighted average of the training cities' vectors, by solving a small quadratic program \cite{Boyd2004}. The full 47-dimensional descriptor vector decomposes into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}] \in \mathbb{R}^{47}$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the 21 structural and spectral features: ($n, m, \delta, \bar{k}, \sigma_k, \bar{L}, L_{\text{net}}, \sigma_v^2, C_{\text{tot}}, M$,\\ $\rho(A_0), \rho(A_w), \Delta\lambda_{\text{Markov}}, |\lambda_2|, \dots, |\lambda_5|$, $\Delta(A_0), K(A_w), \|R\|_{H_2}, S_{\max}(A_w)$). Before solving the quadratic program, each descriptor in $\mathbf{z}$ is standardized ($z_j \leftarrow (z_j - \mu_j) / \sigma_j$) using feature-wise mean $\mu_j$ and standard deviation $\sigma_j$ calculated on the training cities.
+To check whether a new city is similar to the training cities, we write its feature vector $\mathbf{z}$ as a weighted average of the training cities' vectors, by solving a small quadratic program \cite{Boyd2004}. The full 47-dimensional descriptor vector decomposes into $\mathbf{x} = [\mathbf{z}, \mathbf{x}_{\text{demand}}, \mathbf{x}_{\text{fleet}}, \mathbf{x}_{\text{cross}}] \in \mathbb{R}^{47}$, where $\mathbf{z} \in \mathbb{R}^{21}$ isolates the 21 structural and spectral features: ($n, m, \delta, \bar{k}, \sigma_k, \bar{L}, L_{\text{net}}, \sigma_v^2, C_{\text{tot}}, M$,\\ $\rho(A_0), \rho(A_w), \Delta\lambda, |\lambda_2|, \dots, |\lambda_5|$, $\Delta(A_0), K(A_w), \|R\|_{H_2}, S_{\max}(A_w)$). Before solving the quadratic program, each descriptor in $\mathbf{z}$ is standardized ($z_j \leftarrow (z_j - \mu_j) / \sigma_j$) using feature-wise mean $\mu_j$ and standard deviation $\sigma_j$ calculated on the training cities.
 
 Let $\mathbf{X}_{\text{train}} \in \mathbb{R}^{65 \times 21}$ denote the standardized matrix of training cities. We solve:
 \begin{equation}
@@ -610,6 +613,8 @@ As illustrated in Fig.~\ref{fig:digital_twin}, the warm-start latency ($< 6$~ms)
 
 While the graph-spectral surrogate demonstrates high predictive accuracy and computational speedups exceeding $10^5 \times$ for fleet and demand screening, three primary limitations define clear avenues for future research:
 
+The dissipation parameter $\beta = 0.95$ is chosen to enforce spectral contractivity ($\rho(A) < 1$). While this value is not calibrated on real-world exit rates, it ensures mathematical stability of the resolvent and Lyapunov operators. Future work will explore data-driven estimation of $\beta$ and sensitivity analysis across network classes.
+
 \begin{enumerate}
     \item \textbf{Traffic Signal Representation}: Traffic signals are not explicitly represented in the adjacency matrices ($A_w$ currently incorporates only link length, lanes, and free-flow speed). Adding signal timing, green splits, and coordination policies (e.g., adaptive split-cycle offset optimization \cite{Papageorgiou2003}) into time-varying operators $A_w(t)$ represents an essential direction for junction-level fidelity.
     \item \textbf{Synthetic Demand Generation}: Traffic scenarios were generated via SUMO \texttt{randomTrips} rather than empirical household travel surveys (origin-destination matrices). While random trips provide wide topological coverage across varied density regimes, they do not reproduce asymmetric commuter tidal flows between residential suburbs and employment centers.
@@ -683,14 +688,8 @@ L.~Elsner and M.~H.~C. Paardekooper, ``On measures of nonnormality of matrices,'
 \bibitem{Trefethen2005}
 L.~N. Trefethen and M.~Embree, \emph{Spectra and Pseudospectra: The Behavior of Nonnormal Matrices and Operators}. Princeton, NJ, USA: Princeton Univ. Press, 2005.
 
-\bibitem{Kemeny1960}
-J.~G. Kemeny and J.~L. Snell, \emph{Finite Markov Chains}. Princeton, NJ, USA: D. Van Nostrand Co., 1960.
-
 \bibitem{Langville2006}
 A.~N. Langville and C.~D. Meyer, \emph{Google's PageRank and Beyond: The Science of Search Engine Rankings}. Princeton, NJ, USA: Princeton Univ. Press, 2006.
-
-\bibitem{Levin2017}
-D.~A. Levin and Y.~Peres, \emph{Markov Chains and Mixing Times}, 2nd~ed. Providence, RI, USA: Amer. Math. Soc., 2017.
 
 \bibitem{Kreiss1962}
 H.-O. Kreiss, ``\"Uber die Stabilit\"atsdefinition f\"ur Differenzengleichungen die partielle Differentialgleichungen approximieren,'' \emph{BIT Numer. Math.}, vol.~2, no.~3, pp. 153--181, 1962.
