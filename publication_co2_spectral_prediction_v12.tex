@@ -8,8 +8,6 @@
 \usepackage{url}
 \usepackage{xcolor}
 \usepackage{microtype}
-\usepackage{tikz}
-\usetikzlibrary{arrows,positioning}
 
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 
@@ -68,35 +66,7 @@ The main contributions of this work are summarized as follows:
 \section{Mathematical Foundation of Non-Normal Graph Operators}
 
 
-\begin{table}[htbp]
-\caption{Summary of Primary Mathematical Notations and Physical Analogues}
-\label{tab:notations}
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lll}
-\toprule
-\textbf{Symbol} & \textbf{Mathematical Definition} & \textbf{Network / Physical Meaning} \\
-\midrule
-$G = (V, E)$ & Directed multigraph & Urban road network ($n = |V|$ nodes, $m = |E|$ edges) \\
-$A_0 \in \{0,1\}^{n \times n}$ & Binary adjacency matrix & Unweighted directed topological connectivity \\
-$A_w \in \mathbb{R}_{\ge 0}^{n \times n}$ & Weighted impedance matrix & Free-flow travel-time weighted connectivity \\
-$\tilde{A}_0, \tilde{A}_w$ & $\beta D_{\text{out}}^{-1} A$, $\beta = 0.95$ & Dissipative, row-stochastic transition operators \\
-$\rho(A_w)$ & $\max_{\lambda \in \sigma(A_w)} |\lambda|$ & Perron-Frobenius spectral radius (weighted connectivity) \\
-$\Delta(A_0)$ & $\|A_0 A_0^T - A_0^T A_0\|_F$ & Commutator norm (spatial imbalance of one-way links) \\
-$K(\tilde{A}_w)$ & $\sup_{|z|>1} (|z|-1)\|(zI - \tilde{A}_w)^{-1}\|_2$ & Kreiss constant (maximum transient disturbance growth) \\
-$\alpha_\epsilon(\tilde{A}_w)$ & $\sup \{|z| : z \in \Lambda_\epsilon(\tilde{A}_w)\}$ & Pseudospectral radius (eigenvalue sensitivity to perturbation) \\
-$\|R\|_{H_2}$ & $(\sum_{k=0}^\infty \|\tilde{A}_w^k\|_F^2)^{1/2}$ & Discrete Hardy $H_2$ norm (total random disturbance response) \\
-$S_{\max}(A_w)$ & $\max_{ij} (w_i v_j / \mathbf{w}^T \mathbf{v})$ & Maximum first-order link sensitivity derivative \\
-$\Delta\lambda_{\text{Markov}}$ & $1 - |\lambda_2(\tilde{A}_0)|/\beta$ & Markov spectral gap (flow mixing and dispersion speed) \\
-$y, \hat{y}$ & $\text{CO}_2 / N_{\text{veh}}$ (true and predicted) & Normalized emissions per vehicle (kg $\text{CO}_2$/veh or g/veh) \\
-$Y, \hat{Y}$ & $\text{CO}_2$ (true and reconstructed) & Total city-scale carbon emissions ($\hat{Y} = \hat{y} \cdot N_{\text{veh}}$, kg) \\
-$\text{MAPE}$ & $\frac{1}{M} \sum |\hat{Y}_i - Y_i| / Y_i$ & Unweighted Mean Absolute Percentage Error (identical on $y$ and $Y$) \\
-$\text{WAPE}$ & $\sum |\hat{Y}_i - Y_i| / \sum Y_i$ & Volume-weighted percentage error across total carbon mass \\
-$d_{\mathcal{H}}$ & $\|\mathbf{z} - \mathbf{X}_{\text{train}}^T \mathbf{w}^*\|_2$ & Regularized barycentric distance to training convex hull \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+
 
 \subsection{Asymmetric Directed Graphs and Edge Impedance Matrices}
 An urban road network is modeled as a directed multigraph $G = (V, E)$, where $V = \{v_1, \dots, v_n\}$ denotes the set of $n$ road intersections (nodes) and $E = \{e_1, \dots, e_m\} \subseteq V \times V$ represents the set of $m$ directed road segments (edges). We keep only the largest strongly connected component, so that every intersection can be reached from every other one. The adjacency matrices are then irreducible \cite{Horn2013, Berman1994}. Each directed edge $e = (v_i, v_j) \in E$ is characterized by its physical length $L_{ij} > 0$ (meters), legal free-flow speed limit $v_{\text{free}, ij} > 0$ (m/s), number of lanes $c_{ij} \in \mathbb{N}_{\ge 1}$, and storage capacity $C_{ij} = L_{ij} \cdot c_{ij} / l_{\text{veh}}$, representing the number of vehicles that fit on the link when stopped ($l_{\text{veh}} = 7.5$~m per vehicle).
@@ -228,81 +198,6 @@ S_{\max}(M) = \max_{(v_i, v_j) \in E} \frac{w_i v_j}{\mathbf{w}^T \mathbf{v}}.
 Evaluating localized edge sensitivities via \eqref{eq:kato_restrepo} requires only $0.41$~ms per edge, compared to $89.4$~ms for full eigensolver recomputations ($218\times$ speedup) while maintaining relative spectral approximation errors below $0.12\%$ for capacity variations up to $5\%$.
 
 
-\subsection{Illustrative Analytical Example: A 4-Node Asymmetric Network}
-\label{subsec:toy_example}
-To illustrate the calculation of our spectral operators without large-scale numerical abstractions, consider the 4-node directed road network in Fig.~\ref{fig:toy_network}. It consists of four intersections $V = \{1, 2, 3, 4\}$ arranged in a directed cycle ($1 \to 2 \to 3 \to 4 \to 1$), augmented with a two-way arterial shortcut between intersections $1$ and $3$ ($1 \rightleftarrows 3$).
-
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}[>=stealth, auto, node distance=2.2cm, thick,
-  main node/.style={circle, draw, font=\sffamily\bfseries, minimum size=8mm, fill=blue!10}]
-  \node[main node] (1) {1};
-  \node[main node] (2) [right of=1] {2};
-  \node[main node] (3) [below of=2] {3};
-  \node[main node] (4) [below of=1] {4};
-
-  \path[->, >=stealth]
-    (1) edge [bend left=15] node [above] {} (2)
-    (2) edge [bend left=15] node [right] {} (3)
-    (3) edge [bend left=15] node [below] {} (4)
-    (4) edge [bend left=15] node [left] {} (1)
-    (1) edge [bend left=15] node [right] {} (3)
-    (3) edge [bend left=15] node [left] {} (1);
-\end{tikzpicture}
-\caption{Illustrative 4-node directed urban road network with an asymmetric one-way peripheral loop ($1 \to 2 \to 3 \to 4 \to 1$) and a two-way arterial link ($1 \rightleftarrows 3$).}
-\label{fig:toy_network}
-\end{figure}
-
-The binary adjacency matrix $A_0$ is given by:
-\begin{equation}
-A_0 = \begin{pmatrix}
-0 & 1 & 1 & 0 \\
-0 & 0 & 1 & 0 \\
-1 & 0 & 0 & 1 \\
-1 & 0 & 0 & 0
-\end{pmatrix}.
-\end{equation}
-Because of the one-way loop, $A_0$ is asymmetric ($A_0 \ne A_0^T$). The matrix products $A_0 A_0^T$ (common successors) and $A_0^T A_0$ (common predecessors) evaluate to:
-\begin{equation}
-A_0 A_0^T = \begin{pmatrix}
-2 & 1 & 0 & 0 \\
-1 & 1 & 0 & 0 \\
-0 & 0 & 2 & 1 \\
-0 & 0 & 1 & 1
-\end{pmatrix}, \quad
-A_0^T A_0 = \begin{pmatrix}
-2 & 0 & 1 & 1 \\
-0 & 1 & 1 & 0 \\
-1 & 1 & 2 & 0 \\
-1 & 0 & 0 & 1
-\end{pmatrix}.
-\end{equation}
-The commutator matrix is then:
-\begin{equation}
-[A_0, A_0^T] = A_0 A_0^T - A_0^T A_0 = \begin{pmatrix}
-0 & 1 & -1 & -1 \\
-1 & 0 & -1 & 0 \\
--1 & -1 & 0 & 1 \\
--1 & 0 & 1 & 0
-\end{pmatrix}.
-\end{equation}
-On the diagonal, $[A_0, A_0^T]_{ii} = d_{\text{out}}(i) - d_{\text{in}}(i) = 0$ for all four nodes, reflecting in-degree and out-degree balance. However, the off-diagonal entries are non-zero due to directional circulation friction, yielding a non-zero commutator norm:
-\begin{equation}
-\Delta(A_0) = \| [A_0, A_0^T] \|_F = \sqrt{1 + 1 + 1 + 1 + 1 + 1 + 1 + 1} = \sqrt{8} \approx 2.828.
-\end{equation}
-This confirms that $A_0$ is non-normal ($\Delta(A_0) > 0$).
-
-Computing the row-normalized damped transition operator with $\beta = 0.95$ and out-degree vector $\mathbf{d}_{\text{out}} = (2, 1, 2, 1)^T$, we obtain:
-\begin{equation}
-\tilde{A}_0 = 0.95 \begin{pmatrix}
-0 & 0.5 & 0.5 & 0 \\
-0 & 0 & 1.0 & 0 \\
-0.5 & 0 & 0 & 0.5 \\
-1.0 & 0 & 0 & 0
-\end{pmatrix}.
-\end{equation}
-The eigenvalues of $\tilde{A}_0$ are $\lambda_1 = 0.950$, $\lambda_{2,3} = -0.324 \pm 0.472i$ ($|\lambda_{2,3}| \approx 0.572$), and $\lambda_4 = -0.301$. All eigenvalues lie strictly within the open disk $|z| < 0.95$. The Markov spectral gap is $\Delta\lambda_{\text{Markov}} = 1 - 0.572 / 0.95 \approx 0.398$. Because $\tilde{A}_0$ is non-normal, the Kreiss constant evaluated via \eqref{eq:kreiss} yields $K(\tilde{A}_0) \approx 1.34 > 1$, reflecting a transient amplification envelope of small flow disturbances prior to exponential decay.
-
 \section{Surrogate Machine Learning Pipeline and Feature Engineering}
 
 \subsection{Explanatory Feature Families (47 Descriptors)}
@@ -377,53 +272,13 @@ As shown in Table~\ref{tab:correlation}, raw target $Y$ is almost entirely domin
 \label{subsubsec:metrics}
 Let $Y_i$ denote the ground-truth total $\text{CO}_2$ emissions (in kg) from SUMO simulation $i \in \{1, \dots, M\}$, and let $\hat{Y}_i = \hat{y}_i \cdot N_{\text{veh}, i}$ be the reconstructed total emissions derived from the per-vehicle prediction $\hat{y}_i = f_\theta(\mathbf{x}_i)$.
 On the normalized per-vehicle target $y = \text{CO}_2 / N_{\text{veh}}$, model performance is evaluated using the coefficient of determination $R^2$ and root-mean-square error $\text{RMSE}_y = \sqrt{\frac{1}{M} \sum_{i=1}^M (y_i - \hat{y}_i)^2}$.
-
-On macroscopic total metropolitan emissions, we report the total root-mean-square error $\text{RMSE}_Y = \sqrt{\frac{1}{M} \sum_{i=1}^M (Y_i - \hat{Y}_i)^2}$, the unweighted Mean Absolute Percentage Error (MAPE):
+On macroscopic total metropolitan emissions, we report $\text{RMSE}_Y = \sqrt{\frac{1}{M} \sum_{i=1}^M (Y_i - \hat{Y}_i)^2}$, the unweighted Mean Absolute Percentage Error (MAPE), and the volume-weighted percentage error (WAPE):
 \begin{equation}
-\text{MAPE} = \frac{1}{M} \sum_{i=1}^M \frac{|\hat{Y}_i - Y_i|}{Y_i} = \frac{1}{M} \sum_{i=1}^M \frac{|\hat{y}_i - y_i|}{y_i},
-\label{eq:mape_def}
+\text{MAPE} = \frac{1}{M} \sum_{i=1}^M \frac{|\hat{y}_i - y_i|}{y_i}, \quad \text{WAPE} = \frac{\sum_{i=1}^M N_{\text{veh}, i} |\hat{y}_i - y_i|}{\sum_{i=1}^M N_{\text{veh}, i} y_i}.
+\label{eq:metrics_def}
 \end{equation}
-and the Weighted Absolute Percentage Error (WAPE), volume-weighted across total city emissions:
-\begin{equation}
-\text{WAPE} = \frac{\sum_{i=1}^M |\hat{Y}_i - Y_i|}{\sum_{i=1}^M Y_i} = \frac{\sum_{i=1}^M N_{\text{veh}, i} |\hat{y}_i - y_i|}{\sum_{i=1}^M N_{\text{veh}, i} y_i}.
-\label{eq:wape_def}
-\end{equation}
-Because $\hat{Y}_i / Y_i = \hat{y}_i / y_i$ for each individual simulation run, the relative percentage error is algebraically identical on $y$ and on $Y$. Consequently, unweighted MAPE is identical whether evaluated on $y$ or $Y$. In contrast, WAPE gives greater weight to large metropolitan networks with high traffic volume, providing policy makers with the true aggregate carbon discrepancy without disproportionately magnifying small absolute deviations in smaller networks.
+Because $\hat{Y}_i / Y_i = \hat{y}_i / y_i$ for each simulation, unweighted MAPE is algebraically identical on $y$ and on $Y$. In contrast, WAPE weights each scenario by its emission volume, providing municipal stakeholders with the true aggregate carbon discrepancy without disproportionately magnifying small deviations in smaller networks.
 
-We employ eXtreme Gradient Boosting (XGBoost) \cite{Chen2016}, which constructs an ensemble of $K$ regression trees $\hat{y}_i = \sum_{k=1}^K f_k(\mathbf{x}_i)$ by minimizing the regularized objective:
-\begin{equation}
-\mathcal{L}(\theta) = \sum_{i=1}^N \ell(y_i, \hat{y}_i) + \sum_{k=1}^K \left( \gamma T_k + \frac{1}{2} \lambda \| w_k \|^2 + \alpha \| w_k \|_1 \right),
-\label{eq:xgboost_obj}
-\end{equation}
-where $\ell(y_i, \hat{y}_i) = (y_i - \hat{y}_i)^2$ is the mean squared error loss, $T_k$ is the number of terminal leaves, $w_k$ is the leaf weight vector, $\gamma$ penalizes tree complexity, and $\lambda, \alpha$ provide $L_2$ and $L_1$ regularization.
-
-To establish optimal hyperparameters, we conduct a 5-fold cross-validated grid search over 2,400 parameter combinations. Table~\ref{tab:hyperparam} summarizes the grid search evaluation.
-
-\begin{table}[htbp]
-\caption{Hyperparameter Grid Search Optimization on Normalized Emissions ($y$)}
-\label{tab:hyperparam}
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Hyperparameter} & \textbf{Search Space} & \textbf{Optimal} & \textbf{Sensitivity Range ($R^2$)} & \textbf{CV Std} \\
-\midrule
-Max Tree Depth & $\{3, 4, 5, 6, 8, 10\}$ & $\mathbf{6}$ & $82.40\% - 89.39\%$ & $\pm 0.90$ \\
-Learning Rate $\eta$ & $\{0.01, 0.03, 0.05, 0.1, 0.2\}$ & $\mathbf{0.03}$ & $84.30\% - 89.39\%$ & $\pm 0.85$ \\
-Number of Trees $K$ & $\{100, 250, 500, 1000\}$ & $\mathbf{500}$ & $81.50\% - 89.39\%$ & $\pm 0.92$ \\
-Row Subsample Ratio & $\{0.6, 0.7, 0.8, 0.9, 1.0\}$ & $\mathbf{0.80}$ & $86.20\% - 89.39\%$ & $\pm 0.88$ \\
-Column Subsample & $\{0.6, 0.7, 0.8, 0.9, 1.0\}$ & $\mathbf{0.80}$ & $85.80\% - 89.39\%$ & $\pm 0.91$ \\
-$L_1$ Regularizer $\alpha$ & $\{0.0, 0.01, 0.1, 1.0\}$ & $\mathbf{0.10}$ & $86.80\% - 89.39\%$ & $\pm 0.89$ \\
-$L_2$ Regularizer $\lambda$ & $\{0.1, 0.5, 1.0, 5.0\}$ & $\mathbf{1.00}$ & $86.50\% - 89.39\%$ & $\pm 0.90$ \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\textit{Discussion of Hyperparameter Balance}:
-These values gave the best cross-validation score ($R^2 = 89.39 \pm 0.90\%$). Shallow trees (depth 3) underfit ($R^2 = 82.40\%$), whereas overly deep trees (depth 10) exhibit mild overfitting ($R^2 = 87.10\%$). Subsampling and regularization limit overfitting.
-
-%-------------------------------------------------------------------------------
 \section{Experimental Results, Benchmarking, and Validation}
 
 \subsection{Simulation Corpus and Environmental Setup}
@@ -750,15 +605,12 @@ As illustrated in Fig.~\ref{fig:digital_twin}, the warm-start latency ($< 6$~ms)
 %-------------------------------------------------------------------------------
 \section{Discussion, Limitations, and Future Research Perspectives}
 
-While the graph-spectral surrogate demonstrates high predictive accuracy and computational speedups exceeding $10^5 \times$ for fleet and demand screening, several physical and methodological limitations define clear avenues for future research:
+While the graph-spectral surrogate demonstrates high predictive accuracy and computational speedups exceeding $10^5 \times$ for fleet and demand screening, three primary limitations define clear avenues for future research:
 
 \begin{enumerate}
     \item \textbf{Traffic Signal Representation}: Traffic signals are not explicitly represented in the adjacency matrices ($A_w$ currently incorporates only link length, lanes, and free-flow speed). Adding signal timing, green splits, and coordination policies (e.g., adaptive split-cycle offset optimization \cite{Papageorgiou2003}) into time-varying operators $A_w(t)$ represents an essential direction for junction-level fidelity.
     \item \textbf{Synthetic Demand Generation}: Traffic scenarios were generated via SUMO \texttt{randomTrips} rather than empirical household travel surveys (origin-destination matrices). While random trips provide wide topological coverage across varied density regimes, they do not reproduce asymmetric commuter tidal flows between residential suburbs and employment centers.
-    \item \textbf{Emissions Model Scope and Fleet Aging}: Simulations rely on HBEFA 3.3 emission factors \cite{Keller2017} natively embedded in SUMO. The model assumes compliant vehicle operations without particulate trap degradation, cold-start emission penalties, or auxiliary heating and air-conditioning energy consumption.
-    \item \textbf{Non-Causal Nature of TreeSHAP Explanations}: TreeSHAP attributions quantify the statistical dependence of the trained surrogate model on specific input features; they do not establish direct physical causality. High attribution for $\rho(A_w)$ reflects its strong correlation with arterial connectivity, but closing a road to reduce $\rho(A_w)$ without planning can worsen localized bottleneck congestion.
     \item \textbf{3D Cartography and Subterranean Topology}: As demonstrated by the Guanajuato case study ($d_{\mathcal{H}} = 0.142$), standard 2D planar OSM cartography fails in multi-level, tunnel-heavy mountain topographies where vehicles travel without intersection stops. Future extensions will incorporate 3D elevation profiles and grade-separated vertical connectivity into the graph operators.
-    \item \textbf{Sparse Numerical Solvers at Large Scale}: Eigenvalue computation relies on sparse ARPACK Arnoldi iteration. On highly non-normal matrices, eigenvalue condition numbers can be poor, and Krylov subspace solvers may require restart safeguards to avoid spurious Ritz approximations.
 \end{enumerate}
 
 \subsection{Implementation Details and Reproducibility}
@@ -858,9 +710,6 @@ J.~G. Restrepo, E.~Ott, and B.~R. Hunt, ``Characterizing the dynamical importanc
 \bibitem{Barthelemy2011}
 M.~Barth\'elemy, ``Spatial networks,'' \emph{Phys. Rep.}, vol. 499, no. 1--3, pp. 1--101, 2011.
 
-\bibitem{Chen2016}
-T.~Chen and C.~Guestrin, ``{XGBoost}: A scalable tree boosting system,'' in \emph{Proc. 22nd ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining}, 2016, pp. 785--794.
-
 \bibitem{Boeing2017}
 G.~Boeing, ``{OSMnx}: New methods for acquiring, constructing, analyzing, and visualizing complex street networks,'' \emph{Comput., Environ. Urban Syst.}, vol.~65, pp. 126--139, 2017.
 
@@ -872,6 +721,9 @@ S.~M. Lundberg \emph{et al.}, ``From local explanations to global understanding 
 
 \bibitem{Papageorgiou2003}
 M.~Papageorgiou, C.~Diakaki, V.~Dinopoulou, A.~Kotsialos, and Y.~Wang, `Review of road traffic control strategies,'' \emph{Proc. IEEE}, vol.~91, no.~12, pp. 2043--2067, 2003.
+
+\bibitem{Chen2016}
+T.~Chen and C.~Guestrin, ``{XGBoost}: A scalable tree boosting system,'' in \emph{Proc. 22nd ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining}, 2016, pp. 785--794.
 
 \end{thebibliography}
 

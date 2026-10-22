@@ -32,16 +32,12 @@ jobs:
         run: |
           mkdir -p site
           cp publication_co2_spectral_prediction_v12.pdf site/
-          cp publication_co2_spectral_prediction_v12.pdf site/publication_co2_spectral_prediction_v11.pdf
-          cp publication_co2_spectral_prediction_v12.pdf site/
-          cp publication_co2_spectral_prediction_v12.pdf site/publication_co2_spectral_prediction_v11.pdfpublication_co2_spectral_prediction_v9.pdf
-          cp publication_co2_spectral_prediction_v12.pdf site/
-          cp publication_co2_spectral_prediction_v12.pdf site/publication_co2_spectral_prediction_v11.pdfpublication_co2_spectral_prediction.pdf
+          cp publication_co2_spectral_prediction_v12.pdf site/publication_co2_spectral_prediction.pdf
           if [ -f index.html ]; then
             cp index.html site/
           fi
           cp publication_co2_spectral_prediction_v12.tex site/
-          cp publication_co2_spectral_prediction_v12.tex site/publication_co2_spectral_prediction_v9.tex
+          cp publication_co2_spectral_prediction.tex site/
           cp IEEEtran.cls site/ 2>/dev/null || true
 
       - name: Upload Pages artifact
