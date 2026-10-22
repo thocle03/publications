@@ -285,43 +285,52 @@ Toutes les citations dans le texte ont été réordonnées dans leur ordre exact
 - Ordre séquentiel strict de [1] (IEA2023) à [33] (Papageorgiou2003) dans le corps du texte.
 
 
-# 11. Consolidation Finale : Version 12 (Alignement Rigoureux et Format 10 Pages Pleines)
+# 11. Consolidation et Calibrage Final : Version 12 (Alignement Rigoureux et Format 10 Pages Pleines)
 
-La version 12 du papier IEEE finalise l'ensemble des exigences de rigueur mathématique, de clarté pédagogique et de conformité stricte aux standards de publication :
+La version 12 du manuscrit IEEE Transactions on Intelligent Transportation Systems finalise l'ensemble des exigences de rigueur mathématique, de clarté physique, de standardisation des métriques et de conformité au format strict de 10 pages :
 
-## 1. Suppression des Redondances et Clarification de IV-D
-- Le paragraphe en doublon « Analytical Commentary on Cross-Validation and Dual-Scale Evaluation » qui subsistait sous le Tableau VII a été intégralement supprimé.
-- L'écart-type de validation croisée est unifié sur $\pm 5.12\%$ (écart-type d'échantillon $ddof=1$), éliminant la coquille antérieure $\pm 4.67\%$.
-- La référence brisée « Section ?? » dans l'introduction (point 2) a été résolue vers « Section~IV-B ».
+## 1. Calibrage Strict à 10 Pages Pleines et Élimination du Superflu
+Pour respecter impérativement le gabarit IEEE Transactions de 10 pages sans débordement sur une 11e page (évitant ainsi tout surcoût financier ou risque de rejet administratif), quatre allègements ciblés ont été opérés :
+1. **Suppression du réseau jouet à 4 nœuds (Section II-F)** : suppression des 75 lignes contenant la figure TikZ, les 5 matrices 4x4 explicites et les paquets TikZ du préambule.
+2. **Suppression du Tableau de nomenclature (Tableau 1)** : les 31 lignes du tableau de notations ont été retirées ; le premier tableau du papier redevient proprement le Tableau I décrivant les analogies différentielles continues et discrètes (`tab:operator_hydro`).
+3. **Compactage formel des métriques d'évaluation (Section III-B)** : les équations de MAPE et WAPE ont été réunies sur une seule ligne double numérotée (15), conservant l'exactitude mathématique sans consommer d'espace vertical superflu.
+4. **Élagage des limites (Section V)** : réduction des 6 limitations aux 3 verrous fondamentaux prioritaires (absence de feux dynamiques, demande synthétique randomTrips sans flux pendulaires O-D, cartographie 2D insuffisante pour les tunnels 3D comme Guanajuato).
 
-## 2. Distinction Exhaustive entre MAPE et WAPE en Zéro-Shot
-- Sur les 9 métropoles de test du Tableau X (Amsterdam, Bogota, Casablanca, Dublin, Helsinki, Montréal, Séoul, Singapour, Zurich), la somme des émissions réelles est de $685\,692.5\text{ kg}$ et la somme des erreurs absolues est de $20\,977.9\text{ kg}$.
-- Le volume pondéré WAPE est donc rigoureusement de $3.06\%$, tandis que la moyenne non pondérée des erreurs relatives (MAPE) est de $2.67\%$.
-- Le papier affiche désormais explicitement les deux métriques : WAPE ($3.06\%$) et MAPE ($2.67\%$).
-- L'explication méthodologique est explicitée : le MAPE non pondéré est plus bas sur cette cohorte ($2.67\%$) que sur l'ensemble de la validation croisée ($7.28\%$) car les villes zéro-shot sélectionnées pour ce test représentatif sont de grandes agglomérations ($14\,000$ à $98\,000$ véhicules), où les erreurs relatives sont plus régulières et amorties que dans de petites topologies périphériques.
+## 2. Harmonisation et Exactitude des Tailles de Plis de Validation Croisée
+- Les 65 villes ont été partitionnées en 5 groupes disjoints de villes (*Grouped Cross-Validation*), garantissant une isolation totale où aucune agglomération n'apparaît simultanément dans les plis d'entraînement et d'évaluation.
+- Les plis contiennent respectivement **70, 69, 70, 70 et 70 simulations** (totalisant 349 runs).
+- La dénomination des plis par leurs régions dominantes est explicitée comme descriptive pour la lisibilité, résolvant toute contradiction avec les totaux continentaux bruts du Tableau III.
 
-## 3. Précision Opérationnelle du Régime « Warm Start »
-- Rétablissement d'une promesse scientifique rigoureuse : pour une ville dont le graphe et les descripteurs spectraux ont été pré-calculés, un scénario faisant varier le volume de trafic ($N_{\text{veh}}$) ou l'électrification de la flotte ($\text{Fleet}_{\text{elec}}$) modifie uniquement les descripteurs de demande, de flotte et les termes croisés, s'évaluant en moins de $6\text{ ms}$.
-- En revanche, toute modification physique de la voirie (fermeture de rue, ajout d'une voie) modifie la matrice d'adjacence : le rayon spectral $\rho(A_w)$ peut être ré-estimé via la dérivée de perturbation de premier ordre, mais les autres invariants non-normaux nécessitent un recalcul complet (coût cold-start).
-- Les formulations de l'abstract, de la Section IV-H et de la légende de la Fig. 3 ont été corrigées pour refléter fidèlement cette frontière physique.
+## 3. Cohérence des Échelles Urbaines et Durée Simulée
+- **Tableau III (Distribution géographique)** : mise à jour des bornes maximales du parc de véhicules pour concorder avec les métropoles étudiées : l'Europe monte à 130 000 véhicules (Paris à 128 644 véh.) et l'Océanie à 56 000 véhicules (Sydney à 55 453 véh.).
+- **Annotation de vitesse (Fig. 1 / Speedup)** : rectification du facteur d'accélération pour Sydney (3 752 s / 5,6 ms = 6,7x10^5) en écrivant rigoureusement « > 500,000x » au lieu d'une borne excessive à 1 000 000x.
+- **Normalisation de la durée temporelle (Section IV-A)** : confirmation formelle que les 349 simulations SUMO ont été exécutées sur une durée simulée rigoureusement constante d'une heure de pointe (3 600 s avec un pas de temps de 1,0 s), garantissant la comparabilité absolue des cumuls d'émissions de CO2.
+- **Temps de calcul de Hobart vs Tokyo (Section IV-E)** : reformulation neutre et prudente expliquant que le temps de calcul microscopique dépend à la fois de la topologie du réseau et du niveau de congestion localisé, sans allégations spéculatives sur des réévaluations de trajectoires.
 
-## 4. Ajout d'un Exemple Jouet Analytique à 4 Nœuds (Section II-F)
-- Pour dissiper toute abstraction excessive, un réseau minimal à 4 intersections ($1 \to 2 \to 3 \to 4 \to 1$ avec diagonale bidirectionnelle $1 \rightleftarrows 3$) a été intégré.
-- Les matrices $A_0$, $A_0 A_0^T$, $A_0^T A_0$, le commutateur $[A_0, A_0^T]$ (norme $\Delta(A_0) = \sqrt{8} \approx 2.828$), l'opérateur amorti $\tilde{A}_0$ (valeurs propres $\lambda_1 = 0.95$, $|\lambda_{2,3}| \approx 0.572$) et la constante de Kreiss ($K \approx 1.34 > 1$) y sont calculés pas à pas.
+## 4. Précision Algébrique sur la Non-Normalité et Expérience de Contrôle Symétrisée
+- **Clarification dans l'introduction (« Why Non-Normality »)** : suppression de l'assertion inexacte selon laquelle l'asymétrie impliquerait nécessairement la non-normalité. Le texte rappelle que les réseaux urbains orientés (sens uniques, restrictions de tourne-à-gauche) génèrent fréquemment des opérateurs non-normaux où des perturbations locales peuvent s'amplifier transitoirement avant de décroître, servant d'analogie à la congestion temporaire.
+- **Expérience de contrôle sur réseau symétrisé** : ajout des mesures quantitatives démontrant d'où provient la non-normalité. Même sur un réseau totalement bidirectionnel, la normalisation par ligne engendre une non-normalité dès que les degrés des nœuds diffèrent (ex. sur Versailles, le commutateur vaut $\Delta = 2.14$ sur réseau symétrisé contre $4.52$ sur réseau orienté, et la constante de Kreiss vaut $K = 1.84$ contre $3.12$).
 
-## 5. Table des Notations et Formalisation des Métriques
-- Une table des notations (Tableau I dans la numérotation révisée) récapitule exhaustivement chaque symbole, sa définition algébrique et son analogue physique dans le réseau routier.
-- Une sous-section dédiée formalise explicitement les équations de $R^2$, RMSE, MAPE et WAPE, démontrant pourquoi l'erreur relative unitaire est identique sur la cible par véhicule et sur le total.
+## 5. Formalisation du Modèle XGBoost et Hyperparamètres Optimaux (Section III-B)
+- Renommage de la sous-section en « Model Formulation and Evaluation Metrics ».
+- Réintroduction formelle de la fonction de perte (erreur quadratique / *squared-error loss*) et des hyperparamètres optimaux sélectionnés par validation croisée sur 2 400 configurations : profondeur maximale de 6, taux d'apprentissage de 0,03, 500 arbres, sous-échantillonnage des lignes et colonnes de 0,8, pénalité L1 de 0,1 et pénalité L2 de 1,0.
+- La référence Chen & Guestrin [29] y est directement citée.
 
-## 6. Ligne d'Ablation Complète du Spectre (Tableau VI)
-- Ajout de la configuration d'ablation « w/o All 20 Graph-Spectral Descriptors » ($27$ descripteurs restants) : le score $R^2$ chute à $69.40\%$ (perte de $-19.99$ points) et le WAPE grimpe à $11.85\%$.
-- Ajout de la référence naïve « Demand and Fleet Mix Only » ($6$ descripteurs) : $R^2 = 62.10\%$, WAPE $= 14.50\%$.
-- Cet ajout apporte la preuve irréfutable de la valeur prédictive intrinsèque des matrices spectrales.
+## 6. Rigueur de l'Ablation et Attribution TreeSHAP
+- **Tableau V (Ablation)** : la colonne de chute de performance $\Delta R^2$ est formellement exprimée en points de pourcentage (pp). Le texte précise que les variations inférieures à 5 pp se situent dans l'écart-type inter-plis (5,12 pp) et restent indicatives. Le retrait de la demande cinématique (4 descripteurs retirés, 43 restants) explicite que l'échelle directe $N_{\text{veh}}$ est retirée tout en conservant les ratios indirects.
+- **Tableau VIII (SHAP)** : l'importance relative est formellement définie comme la part dans le top 10 des descripteurs (totalisant 100 %), l'unité du SHAP absolu est indiquée en g/véhicule, et la nature mécanique de l'effet d'électrification (les VE n'émettant aucun CO2 à l'échappement dans SUMO) est explicitement mentionnée.
 
-## 7. Audit d'Intégrité des Données et LOCO
-- Clarification dans le texte : 6 des 9 villes zéro-shot (Amsterdam, Bogota, Dublin, Helsinki, Montréal, Zurich) et Guanajuato sont des réseaux à $0$ simulation dans le corpus d'entraînement.
-- Pour les 3 villes ayant des simulations initiales (Casablanca, Séoul, Singapour, représentant 8 runs sur 349), l'évaluation zéro-shot a été réalisée sous isolation stricte Leave-One-City-Out (LOCO).
+## 7. Résolution Intégrale des Références et Ordre IEEE Séquentiel (1 à 33)
+- Résolution de la référence brisée de la Section IV-H (`cold-start cost, Section ??`) vers `item 2 below`.
+- Suppression de la duplication `Section IV-B (Section IV-B)` dans l'introduction.
+- Réordonnancement 1-à-1 des 33 références bibliographiques : de [1] (IEA 2024) à [33] (Papageorgiou et al. 2003), toutes les citations apparaissent dans un ordre strictement séquentiel croissant sans aucune inversion ni omission.
 
-## 8. Limitations Approfondies et Reproductibilité (Section V)
-- Élargissement de la Section V à 6 limitations transparentes (absence de feux dynamiques, demande synthétique randomTrips, modèle HBEFA 3.3 sans vieillissement, attribution SHAP non causale, cartographie 3D, conditionnement d'ARPACK).
-- Ajout d'une sous-section de reproductibilité listant les versions des bibliothèques (SUMO 1.18.0, Python 3.11, SciPy 1.11, OSMnx 1.6, XGBoost 2.0.0), la graine aléatoire fixe (`random_state=42`) et la composition exacte des 5 folds régionaux.
+## 8. Généralisation Zéro-Shot et Corrélation de Spearman à 0,90
+- **Validation LOCO** : le calcul de la coque barycentrique pour Casablanca, Séoul et Singapour a été réalisé en excluant rigoureusement ces métropoles (entraînement sur 62 villes).
+- **Tableau X (Diagnostic barycentrique)** : mise à jour des plages de villes actives pour correspondre aux données réelles (Amsterdam ayant $n_{\text{active}} = 7$, la tranche intermédiaire devient 7-11 ; Séoul ayant 12 et Casablanca 6, la tranche devient 6-12).
+- **Corrélation de Spearman** : ajout du résultat statistique majeur confirmant la pertinence du critère de résidu barycentrique : la corrélation de rang de Spearman entre $d_{\mathcal{H}}$ et l'erreur relative absolue sur les 9 métropoles de test atteint **0,90**, apportant la preuve quantitative de son utilité comme métrique de confiance prédictive.
+- **Cas Guanajuato** : requalifié avec prudence scientifique comme une hypothèse plausible liée aux tunnels sous-terrains déconnectés de la voirie de surface.
+
+## 9. Structure Typographique et Élimination de la Sous-Section Orpheline A
+- Remplacement de la balise isolée `\subsection{Implementation Details and Reproducibility}` par un en-tête de paragraphe non numéroté en italique `\paragraph*{Implementation Details and Reproducibility}`, conformément aux normes IEEEtran et à la règle interdisant les caractères gras dans le texte courant.
+- Mention du lien officiel du dépôt GitHub de reproductibilité : `https://github.com/thocle03/publications`.
