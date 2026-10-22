@@ -274,7 +274,10 @@ Let $Y_i$ denote the ground-truth total $\text{CO}_2$ emissions (in kg) from SUM
 On the normalized per-vehicle target $y$, model accuracy is evaluated using $R^2$ and $\text{RMSE}_y = \sqrt{\frac{1}{M} \sum_{i=1}^M (y_i - \hat{y}_i)^2}$.
 On total metropolitan emissions, we report $\text{RMSE}_Y$, unweighted Mean Absolute Percentage Error (MAPE), and Weighted Absolute Percentage Error (WAPE):
 \begin{equation}
-\text{MAPE} = \frac{1}{M} \sum_{i=1}^M \frac{|\hat{y}_i - y_i|}{y_i}, \quad \text{WAPE} = \frac{\sum_{i=1}^M |\hat{Y}_i - Y_i|}{\sum_{i=1}^M Y_i} = \frac{\sum_{i=1}^M N_{\text{veh}, i} |\hat{y}_i - y_i|}{\sum_{i=1}^M N_{\text{veh}, i} y_i}.
+\begin{aligned}
+\text{MAPE} &= \frac{1}{M} \sum_{i=1}^M \frac{|\hat{y}_i - y_i|}{y_i}, \\
+\text{WAPE} &= \frac{\sum_{i=1}^M |\hat{Y}_i - Y_i|}{\sum_{i=1}^M Y_i} = \frac{\sum_{i=1}^M N_{\text{veh}, i} |\hat{y}_i - y_i|}{\sum_{i=1}^M N_{\text{veh}, i} y_i}.
+\end{aligned}
 \label{eq:metrics_def}
 \end{equation}
 Because $\hat{Y}_i / Y_i = \hat{y}_i / y_i$, unweighted MAPE is identical on $y$ and on $Y$. WAPE equals total absolute carbon discrepancy divided by total SUMO reference emissions.
