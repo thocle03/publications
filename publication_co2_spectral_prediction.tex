@@ -613,7 +613,7 @@ While the graph-spectral surrogate demonstrates high predictive accuracy and com
     \item \textbf{3D Cartography and Subterranean Topology}: As demonstrated by the Guanajuato case study ($d_{\mathcal{H}} = 0.142$), standard 2D planar OSM cartography fails in multi-level, tunnel-heavy mountain topographies where vehicles travel without intersection stops. Future extensions will incorporate 3D elevation profiles and grade-separated vertical connectivity into the graph operators.
 \end{enumerate}
 
-\subsection{Implementation Details and Reproducibility}
+\paragraph*{Implementation Details and Reproducibility}
 To facilitate scientific reproducibility, the experimental software stack utilizes Python 3.11, SciPy 1.11, NetworkX 3.1, OSMnx 1.6 \cite{Boeing2017}, and XGBoost 2.0.0 \cite{Chen2016}. All microscopic simulations were executed in SUMO 1.18.0 \cite{Krajzewicz2012} with a fixed simulation step of $1.0$~s. Deterministic pseudo-random seeds (\texttt{random\_state = 42}) were enforced across all train/test splits, cross-validation folds, and tree building routines. The 5-fold cross-validation partitioned the 65 cities into regional blocks: Fold 1 (Europe / North America, 70 runs), Fold 2 (Asia / Africa, 69 runs), Fold 3 (Latin America / Oceania, 70 runs), Fold 4 (Hybrid Global Mix, 70 runs), and Fold 5 (Dense Megacity Split, 70 runs). Code, trained model weights, and sample network operators are available open-source.
 
 %-------------------------------------------------------------------------------
