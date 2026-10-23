@@ -156,14 +156,14 @@ Table~\ref{tab:operator_hydro} establishes the interpretative correspondence bet
 \end{table*}
 
 \subsection{Dissipative Transition Operators, Kreiss Constant, and Discrete Hardy Spaces}
-To obtain a stable operator for every network, we normalize each row of $A$ and multiply by a damping factor $\beta$:
+In open urban networks, vehicles leave the network when parking or reaching their destinations. In our multi-city SUMO simulations, vehicles traverse an average of $21.4$ road segments per trip. Modeling vehicle exit as an open random walk with a per-step exit probability of $1 - \beta = 0.05$ yields an expected trip length of $1 / (1 - \beta) = 20$ intersections, which closely matches this empirical traffic scale. To obtain a stable operator for every network whose spectral radius strictly satisfies $\rho < 1$, we normalize each row of $A$ and contract by $\beta = 0.95$:
 \begin{equation}
 \tilde{A}_0 = \beta D_{\text{out}, 0}^{-1} A_0, \quad \tilde{A}_w = \beta D_{\text{out}, w}^{-1} A_w,
 \label{eq:normalized_A}
 \end{equation}
 where $D_{\text{out}, 0} = \operatorname{diag}(A_0 \mathbf{1})$, $D_{\text{out}, w} = \operatorname{diag}(A_w \mathbf{1})$ (invertible, since every intersection has an outgoing road), and $\beta = 0.95$.
 
-The rows of $D_{\text{out}}^{-1} A$ sum to 1, so its largest eigenvalue is 1. In open urban networks, vehicles leave the network (they park or reach their destination); we model this by a leak of $1 - \beta = 0.05$ per step, corresponding to an expected trip length of $1 / (1 - \beta) = 20$ intersections (closely matching the empirical average of $21.4$ road segments traversed per vehicle across our multi-city simulation corpus). The rows of $\tilde{A}$ therefore sum to $\beta < 1$, so $\tilde{A}$ is substochastic: the missing $1 - \beta$ is the probability that a vehicle leaves the network. Since $\rho(\tilde{A}) = \beta < 1$, all eigenvalues lie strictly inside the unit disk and the system is stable.
+The rows of $D_{\text{out}}^{-1} A$ sum to 1, so its largest eigenvalue is 1. Multiplying by $\beta$ makes the rows of $\tilde{A}$ sum to $\beta < 1$, so $\tilde{A}$ is substochastic: the missing $1 - \beta$ is the probability that a vehicle leaves the network. Since $\rho(\tilde{A}) = \beta < 1$, all eigenvalues lie strictly inside the unit disk and the system is stable.
 
 Since $\rho(\tilde{A}) = \beta$ is the same for every network, it carries no information. We use instead the spectral gap
 \begin{equation}
